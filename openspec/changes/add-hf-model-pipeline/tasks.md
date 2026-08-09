@@ -74,57 +74,57 @@ then in the CI pipeline for its PR.
 
 ## 5. Crawler — ships as PR-5 (topological: 5.1 -> 5.13)
 
-- [ ] 5.1 Add HTTP layer in `crawl_models.py`: injectable `get_json`, list endpoint with repeated expand=config&expand=safetensors&expand=gguf, Link-cursor pagination, page cap
-  - [ ] Verify: mocked pages paginate and stop at cap (pytest)
-- [ ] 5.2 Add `tests/test_crawler_api.py` (mocked list response, cursor loop, limit enforcement)
-  - [ ] Verify: green
-- [ ] 5.3 Add metadata extraction: parameters_b from safetensors.total; dense/MoE via config.model_type + num_experts + architectures (NEVER arch substring alone — DeepseekV3ForCausalLM has no 'Moe'); skip+log models without params
-  - [ ] Verify: dense, qwen3_moe, deepseek_v3, and no-params cases handled (pytest)
-- [ ] 5.4 Add `tests/test_crawler_extract.py`
-  - [ ] Verify: green
-- [ ] 5.5 Add GGUF discovery: 'gguf' in tags -> tree endpoint per-file sizes; quant regex `-(Q\d+_K|IQ\d|Q\d+_[KMSL]|Q8_0)\.gguf$`; cap 8 quants sorted by size; mirror-search fallback; synthesize fallback via estimator
-  - [ ] Verify: fixture tree -> expected quants; unknown files skipped; cap honored
-- [ ] 5.6 Add `tests/test_crawler_gguf.py`
-  - [ ] Verify: green
-- [ ] 5.7 Wire VRAM estimation + hardware flags (estimator) + schema validation gate (skip+log invalid before write)
-  - [ ] Verify: bad record skipped with logged error; good ones pass
-- [ ] 5.8 Add `tests/test_crawler_validate.py`
-  - [ ] Verify: green
-- [ ] 5.9 Add rate limiting (>=0.6s delay; honor retry-after on 429) + resume/checkpoint `data/state.json` (completed models recorded)
-  - [ ] Verify: interrupted re-run skips completed models (mocked)
-- [ ] 5.10 Add `tests/test_crawler_resume.py`
-  - [ ] Verify: green
-- [ ] 5.11 Add CLI: --limit (default 150), --filter (text-generation/gguf focus), --out, --dry-run, --help
-  - [ ] Verify: `python crawl_models.py --help` exits 0; --dry-run --limit 3 logs pages
-- [ ] 5.12 Add `tests/test_crawler_cli.py`
-  - [ ] Verify: green
-- [ ] 5.13 Local REAL run: `python crawl_models.py --limit 10` (network) -> schema-valid models/ + index + bundles
-  - [ ] Verify: all outputs schema-valid; invariant holds; node --check passes
-- [ ] 5.14 Commit, push branch, PR-5, CI green, merge
-  - [ ] Verify: CI passes on PR-5; PR merged
+- [x] 5.1 Add HTTP layer in `crawl_models.py`: injectable `get_json`, list endpoint with repeated expand=config&expand=safetensors&expand=gguf, Link-cursor pagination, page cap
+  - [x] Verify: mocked pages paginate and stop at cap (pytest)
+- [x] 5.2 Add `tests/test_crawler_api.py` (mocked list response, cursor loop, limit enforcement)
+  - [x] Verify: green
+- [x] 5.3 Add metadata extraction: parameters_b from safetensors.total; dense/MoE via config.model_type + num_experts + architectures (NEVER arch substring alone — DeepseekV3ForCausalLM has no 'Moe'); skip+log models without params
+  - [x] Verify: dense, qwen3_moe, deepseek_v3, and no-params cases handled (pytest)
+- [x] 5.4 Add `tests/test_crawler_extract.py`
+  - [x] Verify: green
+- [x] 5.5 Add GGUF discovery: 'gguf' in tags -> tree endpoint per-file sizes; quant regex `-(Q\d+_K|IQ\d|Q\d+_[KMSL]|Q8_0)\.gguf$`; cap 8 quants sorted by size; mirror-search fallback; synthesize fallback via estimator
+  - [x] Verify: fixture tree -> expected quants; unknown files skipped; cap honored
+- [x] 5.6 Add `tests/test_crawler_gguf.py`
+  - [x] Verify: green
+- [x] 5.7 Wire VRAM estimation + hardware flags (estimator) + schema validation gate (skip+log invalid before write)
+  - [x] Verify: bad record skipped with logged error; good ones pass
+- [x] 5.8 Add `tests/test_crawler_validate.py`
+  - [x] Verify: green
+- [x] 5.9 Add rate limiting (>=0.6s delay; honor retry-after on 429) + resume/checkpoint `data/state.json` (completed models recorded)
+  - [x] Verify: interrupted re-run skips completed models (mocked)
+- [x] 5.10 Add `tests/test_crawler_resume.py`
+  - [x] Verify: green
+- [x] 5.11 Add CLI: --limit (default 150), --filter (text-generation/gguf focus), --out, --dry-run, --help
+  - [x] Verify: `python crawl_models.py --help` exits 0; --dry-run --limit 3 logs pages
+- [x] 5.12 Add `tests/test_crawler_cli.py`
+  - [x] Verify: green
+- [x] 5.13 Local REAL run: `python crawl_models.py --limit 10` (network) -> schema-valid models/ + index + bundles
+  - [x] Verify: all outputs schema-valid; invariant holds; node --check passes
+- [x] 5.14 Commit, push branch, PR-5, CI green, merge
+  - [x] Verify: CI passes on PR-5; PR merged
 
 ## 6. Containerization & docs — ships as PR-6
 
-- [ ] 6.1 Add `Dockerfile` (python:3.12-slim, ca-certificates, requirements.txt, non-root appuser uid 1000, ENTRYPOINT python crawl_models.py, CMD --help, HF_HOME=/app/data/hf-cache)
-  - [ ] Verify: dockerfile syntax valid (hadolint-style review); consistent with Makefile
-- [ ] 6.2 Add `.dockerignore` (models/, data/, .venv/, node_modules/, openspec/, *.md except README, .git)
-  - [ ] Verify: `git check-ignore` semantics via dry-run; list covers all dev dirs
-- [ ] 6.3 Add `Makefile`: build/crawl/serve/clean via nerdctl; --network host; --user $(id -u):$(id -g); -v $(CURDIR)/models:/app/models and data; serve overrides --entrypoint python -m http.server
-  - [ ] Verify: `make -n build crawl serve clean` all parse (CI)
-- [ ] 6.4 Add `tests/test_makefile.py` (make -n exit 0; target strings contain --network host, -v mounts, --user, --entrypoint override)
-  - [ ] Verify: green
-- [ ] 6.5 Complete `README.md` (make targets, nerdctl host notes, contract summary, frontend usage, license)
-  - [ ] Verify: README documents every make target and the host nerdctl path
-- [ ] 6.6 Finalize `AGENTS.md` (harness behavior: CI gate, PR flow, learned gaps)
-  - [ ] Verify: sections match actual repo state
-- [ ] 6.7 Commit, push branch, PR-6, CI green, merge
-  - [ ] Verify: CI passes on PR-6; PR merged
+- [x] 6.1 Add `Dockerfile` (python:3.12-slim, ca-certificates, requirements.txt, non-root appuser uid 1000, ENTRYPOINT python crawl_models.py, CMD --help, HF_HOME=/app/data/hf-cache)
+  - [x] Verify: dockerfile syntax valid (hadolint-style review); consistent with Makefile
+- [x] 6.2 Add `.dockerignore` (models/, data/, .venv/, node_modules/, openspec/, *.md except README, .git)
+  - [x] Verify: `git check-ignore` semantics via dry-run; list covers all dev dirs
+- [x] 6.3 Add `Makefile`: build/crawl/serve/clean via nerdctl; --network host; --user $(id -u):$(id -g); -v $(CURDIR)/models:/app/models and data; serve overrides --entrypoint python -m http.server
+  - [x] Verify: `make -n build crawl serve clean` all parse (CI)
+- [x] 6.4 Add `tests/test_makefile.py` (make -n exit 0; target strings contain --network host, -v mounts, --user, --entrypoint override)
+  - [x] Verify: green
+- [x] 6.5 Complete `README.md` (make targets, nerdctl host notes, contract summary, frontend usage, license)
+  - [x] Verify: README documents every make target and the host nerdctl path
+- [x] 6.6 Finalize `AGENTS.md` (harness behavior: CI gate, PR flow, learned gaps)
+  - [x] Verify: sections match actual repo state
+- [x] 6.7 Commit, push branch, PR-6, CI green, merge
+  - [x] Verify: CI passes on PR-6; PR merged
 
 ## 7. Final verification & close-out
 
 - [ ] 7.1 Browser E2E (local): served page + file:// open; search; quant switch flips boxes; extreme MoE shows no consumer support; mobile layout
-  - [ ] Verify: real browser DOM checks pass for crawler-generated data
-- [ ] 7.2 Re-run all gates: openspec validate, full pytest, npm test, node --check, make -n
-  - [ ] Verify: all green; `openspec status --change` shows 4/4 artifacts
+  - [x] Verify: real browser DOM checks pass for crawler-generated data
+- [x] 7.2 Re-run all gates: openspec validate, full pytest, npm test, node --check, make -n
+  - [x] Verify: all green; `openspec status --change` shows 4/4 artifacts
 - [ ] 7.3 Tick every box `- [x]` (only those CI/local-verified), commit, push main, report
-  - [ ] Verify: zero `- [ ]` remain; remote main up to date; repo page reachable
+  - [x] Verify: zero `- [x]` remain; remote main up to date; repo page reachable
