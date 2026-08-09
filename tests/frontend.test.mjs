@@ -19,6 +19,17 @@ async function boot() {
   const { window } = dom;
   await waitFor(() => window.MODELS_INDEX, 8000);
   assert.ok(window.MODELS_INDEX.length >= 14, 'expected >=14 sample models');
+  // pre-inject the bundle so card clicks never start a pending script load that
+  // window.close() aborts (flaky unhandled-rejection in slow CI containers)
+  if (!window.MODELS_BUNDLE) {
+    await new Promise((resolve) => {
+      const s = window.document.createElement('script');
+      s.src = 'models/bundle.js';
+      s.onload = resolve; s.onerror = resolve;
+      window.document.head.appendChild(s);
+    });
+    await waitFor(() => window.MODELS_BUNDLE, 8000);
+  }
   return dom;
 }
 

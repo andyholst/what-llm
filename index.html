@@ -338,6 +338,12 @@
 
   function injectBundle(){
     return new Promise(function(resolve, reject){
+      if(window.MODELS_BUNDLE){
+        state.bundleInjected = true;
+        Object.keys(window.MODELS_BUNDLE).forEach(function(k){ state.cache[k] = window.MODELS_BUNDLE[k]; });
+        if(state.cache[state.selectedId]) renderDetails(state.selectedId);
+        resolve(); return;
+      }
       var s = document.createElement("script");
       s.src = "models/bundle.js";
       s.onload = function(){
@@ -354,6 +360,7 @@
   }
 
   function selectModel(id){
+    if(!document) return;   // guard: async events can fire after window teardown
     state.selectedId = id;
     state.selectedQuant = 0;
     location.hash = "#m/" + encodeURIComponent(id);
@@ -368,9 +375,11 @@
     renderList();
     if (pane.scrollIntoView) pane.scrollIntoView({behavior:"smooth", block:"nearest"});
     loadDetails(id).then(function(){
+      if(!document) return;   // guard: promise may settle after window teardown
       $("#d-loading").textContent = "";
       renderDetails(id);
     }).catch(function(err){
+      if(!document) return;   // guard: same
       $("#d-loading").textContent = "";
       var e = $("#d-error");
       e.style.display = "block";
@@ -381,6 +390,7 @@
   }
 
   function renderDetails(id){
+    if(!document) return;   // guard: may be invoked from a promise after close
     var m = state.cache[id];
     if(!m) return;
     $("#d-name").textContent = m.name + (m.architecture === "moe" ? " (MoE)" : "");
@@ -661,6 +671,7 @@
   }, 150));
   $("#sort").addEventListener("change", function(){ state.sort = $("#sort").value; renderList(); });
   window.addEventListener("hashchange", function(){
+    if(!document) return;   // guard: jsdom can fire hashchange after window.close()
     var h = location.hash.match(/^#m\/(.+)$/);
     if(h){ try { selectModel(decodeURIComponent(h[1])); } catch(_){} }
   });
