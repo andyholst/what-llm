@@ -171,3 +171,21 @@ def test_hardware_flags_requires_quants():
     except ValueError:
         return
     raise AssertionError("expected ValueError for empty quants")
+
+def test_flags_deepseek_v4_flash_gguf_does_not_fit_macbook_48():
+    """User-reported case (live site): DeepSeek-V4-Flash-0731 GGUF (UD-IQ1_M 86.9 GB,
+    est 88.2) must NOT fit a 48 GB MacBook Pro (usable 44.5) — only 96/128 GB Macs.
+    Pinned from the committed sample; the JS wizard test mirrors this."""
+    import json
+    from pathlib import Path
+    m = json.loads((Path(__file__).resolve().parents[1] / "models" /
+                    "unsloth__DeepSeek-V4-Flash-0731-GGUF.json").read_text(encoding="utf-8"))
+    est = m["quants"][0]["estimated_vram_gb"]
+    assert est == 88.2, f"UD-IQ1_M est should be 88.2, got {est}"
+    mac = m["hardware"]["macbook"]
+    assert mac["48gb"] is False, "48 GB MacBook must NOT fit (89.7 > 44.5 usable)"
+    assert mac["96gb"] is True and mac["128gb"] is True, "96/128 GB MacBooks fit"
+    assert m["hardware"]["nvidia"]["48gb"] is False, "no consumer NVIDIA fits"
+    # recompute independently (contract: est + 1.5 <= tier - 3.5 for Macs)
+    assert est + 1.5 > 48 - 3.5
+    assert est + 1.5 <= 96 - 3.5

@@ -13,7 +13,9 @@
     "license": "mit",
     "est_vram_gb": 3.64,
     "best_for": [
-      "chat"
+      "chat",
+      "reasoning",
+      "mobile"
     ]
   },
   {
@@ -51,7 +53,9 @@
     "license": "llama3.1",
     "est_vram_gb": 6.21,
     "best_for": [
-      "chat"
+      "chat",
+      "rag",
+      "agentic"
     ]
   },
   {
@@ -68,7 +72,9 @@
     "license": "llama3.1",
     "est_vram_gb": 5.99,
     "best_for": [
-      "local-inference"
+      "chat",
+      "rag",
+      "agentic"
     ]
   },
   {
@@ -106,8 +112,7 @@
     "est_vram_gb": 29.88,
     "best_for": [
       "chat",
-      "reasoning",
-      "rag"
+      "reasoning"
     ]
   },
   {
@@ -163,7 +168,9 @@
     "license": "llama3.2",
     "est_vram_gb": 2.05,
     "best_for": [
-      "chat"
+      "chat",
+      "rag",
+      "agentic"
     ]
   },
   {
@@ -200,7 +207,8 @@
     "license": "gemma",
     "est_vram_gb": 3.63,
     "best_for": [
-      "chat"
+      "chat",
+      "reasoning"
     ]
   },
   {
@@ -238,7 +246,9 @@
     "license": "llama3.1",
     "est_vram_gb": 44.51,
     "best_for": [
-      "chat"
+      "chat",
+      "rag",
+      "agentic"
     ]
   },
   {
@@ -255,7 +265,8 @@
     "license": "deepseek",
     "est_vram_gb": 88.2,
     "best_for": [
-      "local-inference"
+      "reasoning",
+      "coding"
     ]
   },
   {
@@ -272,7 +283,9 @@
     "license": "cc-by-nc-4.0",
     "est_vram_gb": 6.21,
     "best_for": [
-      "chat"
+      "chat",
+      "rag",
+      "agentic"
     ]
   }
 ]

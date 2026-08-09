@@ -159,36 +159,42 @@ CURATED_FAMILIES: dict[str, dict] = {
         "weaknesses": ["Extreme parameter count — server only"],
         "limitations": ["No consumer hardware fits (see hardware flags)"],
     },
-    "bartowski": {
-        "summary": "GGUF mirror: quantization of a base model for local inference.",
-        "best_for": ["local-inference"],
-        "strengths": ["Ready-to-use GGUF files with real quant sizes", "Broad quant ladder"],
-        "weaknesses": ["Quality follows the upstream model", "Uses the upstream model's license"],
-        "limitations": ["Check the upstream model card for license/limitations"],
-    },
-    "unsloth": {
-        "summary": "GGUF/quantized mirror (often UD quants) for local inference.",
-        "best_for": ["local-inference"],
-        "strengths": ["Aggressive dynamic quants shrink file size", "Real split-file sizes exposed"],
-        "weaknesses": ["Very low-bit quants trade quality", "Quality follows the upstream model"],
-        "limitations": ["Check the upstream model card for license/limitations"],
-    },
     "liquid": {
         "summary": "Liquid/LFM: small efficient models tuned for local reasoning.",
-        "best_for": ["reasoning", "chat", "local-inference"],
+        "best_for": ["reasoning", "chat"],
         "strengths": ["Good reasoning per parameter", "Small sizes run locally"],
         "weaknesses": ["Smaller knowledge base"],
         "limitations": [],
     },
 }
 
+# GGUF/quant mirror orgs MUST inherit the UPSTREAM model's family profile — the id
+# itself (e.g. "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF") carries the family name.
+FAMILY_KEYWORDS = [
+    ("deepseek", "deepseek"),
+    ("qwen", "qwen"),
+    ("llama", "llama"),
+    ("mixtral", "mixtral"),
+    ("mistral", "mistral"),
+    ("phi", "phi"),
+    ("gemma", "gemma"),
+    ("kimi", "kimi"),
+    ("liquid", "liquid"),
+]
+
 
 def family_for(model_id: str) -> str | None:
-    """Map a model id (lowercased) to a curated family key."""
+    """Map a model id to a curated family key by searching the WHOLE id.
+
+    Org-prefix matching is deliberately avoided: GGUF mirrors (bartowski/, unsloth/,
+    DavidAU/, ...) are quantization orgs, NOT model families — their profiles must
+    inherit the upstream family (bartowski/Meta-Llama-... -> llama, unsloth/
+    DeepSeek-... -> deepseek). Verified by tests/test_profile.py.
+    """
     mid = model_id.lower()
-    for key in CURATED_FAMILIES:
-        if mid.startswith(key):
-            return key
+    for keyword, fam in FAMILY_KEYWORDS:
+        if keyword in mid:
+            return fam
     return None
 
 

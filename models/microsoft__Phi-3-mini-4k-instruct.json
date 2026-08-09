@@ -85,14 +85,21 @@
     }
   },
   "profile": {
-    "summary": "microsoft/Phi-3-mini-4k-instruct: see strengths/weaknesses for what it is good at and where it falls short.",
+    "summary": "Phi: compact models ideal for edge/mobile and constrained hardware.",
     "best_for": [
-      "chat"
+      "chat",
+      "reasoning",
+      "mobile"
     ],
     "strengths": [
-      "Supports up to 4,096 tokens of context"
+      "Supports up to 4,096 tokens of context",
+      "Small footprint (3-4B) fits phones and low-end GPUs",
+      "Surprisingly strong reasoning for size"
     ],
-    "weaknesses": [],
+    "weaknesses": [
+      "Smaller knowledge base",
+      "License terms vary by version (MIT/other)"
+    ],
     "limitations": [
       "Short context window (4,096 tokens)"
     ],
@@ -105,6 +112,26 @@
       {
         "claim": "Short context window (4,096 tokens)",
         "source": "config",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Small footprint (3-4B) fits phones and low-end GPUs",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Surprisingly strong reasoning for size",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Smaller knowledge base",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "License terms vary by version (MIT/other)",
+        "source": "curated",
         "confidence": "medium"
       }
     ]

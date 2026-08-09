@@ -91,21 +91,24 @@
     }
   },
   "profile": {
-    "summary": "GGUF mirror: quantization of a base model for local inference.",
+    "summary": "Llama: solid general-purpose chat with broad ecosystem support (llama.cpp, vLLM).",
     "best_for": [
-      "local-inference"
+      "chat",
+      "rag",
+      "agentic"
     ],
     "strengths": [
       "Supports up to 131,072 tokens of context",
-      "Ready-to-use GGUF files with real quant sizes",
-      "Broad quant ladder"
+      "Excellent ecosystem and quantization support",
+      "Well-tuned instruct variants"
     ],
     "weaknesses": [
-      "Quality follows the upstream model",
-      "Uses the upstream model's license"
+      "Benchmarks often matched by newer smaller models",
+      "Gated card — README not anonymous-accessible"
     ],
     "limitations": [
-      "Check the upstream model card for license/limitations"
+      "Llama community license: commercial use ok but MAU >700M needs Meta approval",
+      "Gated model card (login required for files)"
     ],
     "provenance": [
       {
@@ -114,27 +117,32 @@
         "confidence": "high"
       },
       {
-        "claim": "Ready-to-use GGUF files with real quant sizes",
+        "claim": "Excellent ecosystem and quantization support",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Broad quant ladder",
+        "claim": "Well-tuned instruct variants",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Quality follows the upstream model",
+        "claim": "Benchmarks often matched by newer smaller models",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Uses the upstream model's license",
+        "claim": "Gated card — README not anonymous-accessible",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Check the upstream model card for license/limitations",
+        "claim": "Llama community license: commercial use ok but MAU >700M needs Meta approval",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated model card (login required for files)",
         "source": "curated",
         "confidence": "medium"
       }
