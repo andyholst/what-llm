@@ -1,0 +1,33 @@
+# what-llm CI harness — containerized gate (py + node)
+# Usage: docker compose -f docker-compose-files/ci.yaml up --abort-on-container-exit
+#        or `make ci` (the Makefile wraps this; GitHub Actions runs `make ci`).
+services:
+  py:
+    build:
+      context: ..
+      dockerfile: docker/py.Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+      - /app/.venv
+    command: ["python", "-m", "pytest", "-q", "-p", "no:cacheprovider"]
+
+  node:
+    build:
+      context: ..
+      dockerfile: docker/node.Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    command:
+      - bash
+      - -c
+      - |
+        npm test &&
+        npx playwright test &&
+        (if [ -f models/index.js ]; then node --check models/index.js; fi) &&
+        (if [ -f models/bundle.js ]; then node --check models/bundle.js; fi) &&
+        ./node_modules/.bin/openspec validate add-hf-model-pipeline &&
+        ./node_modules/.bin/openspec validate expand-hardware-tiers &&
+        ./node_modules/.bin/openspec validate add-compose-ci-harness

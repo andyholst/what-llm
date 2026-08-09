@@ -46,11 +46,36 @@
       "16gb": true,
       "24gb": true,
       "32gb": true,
-      "48gb_plus": true
+      "48gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true
     },
-    "mobile": {
-      "practical": false,
-      "note": "Too large for phones"
+    "mac_studio": {
+      "32gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true,
+      "192gb": true,
+      "256gb": true,
+      "512gb": true
+    },
+    "dgx": {
+      "640gb": true,
+      "1128gb": true,
+      "1440gb": true
+    },
+    "android": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "note": "Too large for Android phones"
+    },
+    "iphone": {
+      "8gb": false,
+      "12gb": false,
+      "note": "Too large for iPhone phones"
     }
   },
   "last_updated": "2026-08-09"

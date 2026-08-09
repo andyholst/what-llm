@@ -82,10 +82,53 @@ def build_samples() -> list[dict]:
         "Qwen/Qwen2.5-72B-Instruct", "Qwen2.5 72B Instruct", 72.71, "dense",
         "text-generation", 940, 2_700_000, estimator.synthesize_quants(72.71)))
 
-    # 8. extreme MoE (671B) -> no consumer support
+    # 8. extreme MoE (671B) -> Mac Studio 512 + DGX
     samples.append(_model(
         "deepseek-ai/DeepSeek-R1", "DeepSeek R1", 671.0, "moe", "text-generation",
         860, 6_500_000, estimator.synthesize_quants(671.0)))
+
+    # 9. tiny dense -> phone-practical everywhere
+    samples.append(_model(
+        "meta-llama/Llama-3.2-1B", "Llama 3.2 1B", 1.23, "dense", "text-generation",
+        640, 2_100_000, estimator.synthesize_quants(1.23)))
+
+    # 10. small dense
+    samples.append(_model(
+        "Qwen/Qwen2.5-3B-Instruct", "Qwen2.5 3B Instruct", 3.09, "dense",
+        "text-generation", 720, 1_800_000, estimator.synthesize_quants(3.09)))
+
+    # 11. small dense
+    samples.append(_model(
+        "google/gemma-3-4b-it", "Gemma 3 4B IT", 3.8, "dense", "text-generation",
+        590, 890_000, estimator.synthesize_quants(3.8)))
+
+    # 12. mid-large dense
+    samples.append(_model(
+        "Qwen/Qwen3-32B", "Qwen3 32B", 32.76, "dense", "text-generation",
+        830, 410_000, estimator.synthesize_quants(32.76)))
+
+    # 13. huge dense (70B): MacBook 64+ per contract math
+    samples.append(_model(
+        "meta-llama/Llama-3.1-70B-Instruct", "Llama 3.1 70B Instruct", 70.6, "dense",
+        "text-generation", 710, 1_500_000, estimator.synthesize_quants(70.6)))
+
+    # 14. 304B MoE GGUF with REAL split-file quant sizes (unsloth UD quants, summed
+    #     from the HF tree endpoint: UD-IQ1_M 86.9 GB ... UD-Q8_K_XL 161.9 GB)
+    ds4_quants = [
+        {"name": "UD-IQ1_M", "size_gb": 86.9, "estimated_vram_gb": estimator.est_vram_gb(86.9),
+         "notes": "Aggressive 1-bit dynamic quant — only practical option for 128 GB Macs"},
+        {"name": "UD-Q2_K_XL", "size_gb": 96.8, "estimated_vram_gb": estimator.est_vram_gb(96.8),
+         "notes": "2-bit XL quant, compact"},
+        {"name": "UD-Q3_K_XL", "size_gb": 128.2, "estimated_vram_gb": estimator.est_vram_gb(128.2),
+         "notes": "3-bit XL quant"},
+        {"name": "UD-Q4_K_XL", "size_gb": 155.1, "estimated_vram_gb": estimator.est_vram_gb(155.1),
+         "notes": "4-bit XL quant — higher quality"},
+        {"name": "UD-Q8_K_XL", "size_gb": 161.9, "estimated_vram_gb": estimator.est_vram_gb(161.9),
+         "notes": "8-bit XL quant — highest quality"},
+    ]
+    samples.append(_model(
+        "unsloth/DeepSeek-V4-Flash-0731-GGUF", "DeepSeek V4 Flash 0731 GGUF", 304.18,
+        "moe", "text-generation", 625, 189_000, ds4_quants))
 
     return samples
 

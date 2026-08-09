@@ -1,36 +1,36 @@
 {
-  "id": "microsoft/Phi-3-mini-4k-instruct",
-  "name": "Phi-3 Mini 4K Instruct",
-  "author": "microsoft",
-  "parameters_b": 3.82,
+  "id": "google/gemma-3-4b-it",
+  "name": "Gemma 3 4B IT",
+  "author": "google",
+  "parameters_b": 3.8,
   "architecture": "dense",
   "pipeline_tag": "text-generation",
-  "hf_url": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
-  "trending_score": 4120,
-  "downloads": 1450000,
+  "hf_url": "https://huggingface.co/google/gemma-3-4b-it",
+  "trending_score": 590,
+  "downloads": 890000,
   "quants": [
     {
       "name": "Q4_K_M",
-      "size_gb": 2.34,
-      "estimated_vram_gb": 3.64,
+      "size_gb": 2.33,
+      "estimated_vram_gb": 3.63,
       "notes": "Recommended balanced quant"
     },
     {
       "name": "Q5_K_M",
-      "size_gb": 2.72,
-      "estimated_vram_gb": 4.02,
+      "size_gb": 2.71,
+      "estimated_vram_gb": 4.01,
       "notes": "Higher quality, slightly larger"
     },
     {
       "name": "Q8_0",
-      "size_gb": 4.06,
-      "estimated_vram_gb": 5.36,
+      "size_gb": 4.04,
+      "estimated_vram_gb": 5.34,
       "notes": "Near-lossless, needs more VRAM"
     },
     {
       "name": "FP16",
-      "size_gb": 7.64,
-      "estimated_vram_gb": 8.94,
+      "size_gb": 7.6,
+      "estimated_vram_gb": 8.9,
       "notes": "Full precision, most VRAM"
     }
   ],
@@ -76,12 +76,12 @@
       "12gb": true,
       "16gb": true,
       "24gb": true,
-      "note": "Practical at the smallest quant (~3.64 GB est.) on flagship Android"
+      "note": "Practical at the smallest quant (~3.63 GB est.) on flagship Android"
     },
     "iphone": {
       "8gb": true,
       "12gb": true,
-      "note": "Practical at the smallest quant (~3.64 GB est.) on flagship iPhone"
+      "note": "Practical at the smallest quant (~3.63 GB est.) on flagship iPhone"
     }
   },
   "last_updated": "2026-08-09"

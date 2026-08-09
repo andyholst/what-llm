@@ -2,11 +2,13 @@
   "name": "what-llm",
   "version": "0.1.0",
   "private": true,
-  "description": "Frontend test harness for what-llm (vanilla index.html tested with jsdom)",
+  "description": "what-llm frontend + E2E test harness (jsdom unit tests + Playwright browser tests)",
   "scripts": {
-    "test": "node --test tests/frontend.test.mjs"
+    "test": "node --test tests/frontend.test.mjs",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "jsdom": "^24.1.0"
   }
 }

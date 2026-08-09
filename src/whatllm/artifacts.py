@@ -18,8 +18,17 @@ SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "model.schema.js
 
 SUMMARY_FIELDS = [
     "id", "name", "author", "parameters_b", "architecture",
-    "pipeline_tag", "trending_score", "downloads",
+    "pipeline_tag", "trending_score", "downloads", "est_vram_gb",
 ]
+
+
+def _summary_entry(model: dict) -> dict:
+    """Card-row summary: the last field is derived from the recommended quant."""
+    entry = {k: model[k] for k in SUMMARY_FIELDS[:-1]}
+    entry["est_vram_gb"] = (
+        model["quants"][0]["estimated_vram_gb"] if model.get("quants") else None
+    )
+    return entry
 
 
 def sanitize_id(model_id: str) -> str:
@@ -58,7 +67,7 @@ def emit_artifacts(models: list[dict], out_dir: Path) -> None:
     for model in models:
         write_model_file(model, out_dir)
 
-    summary = [{k: m[k] for k in SUMMARY_FIELDS} for m in models]
+    summary = [_summary_entry(m) for m in models]
     (out_dir / "index.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )

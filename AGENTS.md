@@ -59,11 +59,19 @@ lessons and gaps as they are discovered.
 
 - **Small topo tasks**: tasks.md contains small, topologically-ordered units; a task is
   done only when verified locally AND by the GitHub Actions CI pipeline on its PR.
+- **TEST PARITY (no exceptions)**: every code change or new requirement MUST ship with
+  new tests — Python changes get pytest cases; HTML/JS changes (index.html included) get
+  jsdom unit tests AND Playwright browser specs. The frontend's JS is tested with dev
+  npm dependencies (jsdom, @playwright/test) as part of the CI node container. A PR that
+  changes code without adding/changing tests fails the gate.
 - **Iterative delivery**: completed task groups ship as small PRs (feat/<milestone> →
   main). Every PR must be CI-green before merge; never merge with failing checks.
-- **CI pipeline** (`.github/workflows/ci.yml`) runs on every PR: pytest (hermetic),
-  `npm test` (jsdom frontend tests), `node --check` on emitted JS, `make -n` dry-runs,
-  and `openspec validate`. Tests MUST stay hermetic (mocked HTTP) — CI has no HF access.
+- **CI pipeline**: `.github/workflows/ci.yml` runs `make ci` (docker compose: py +
+  node containers — pytest, jsdom, Playwright, node --check, openspec validate).
+  Tests MUST stay hermetic (mocked HTTP) — CI has no HF access.
+- **OpenSpec validity is part of the gate**: every active change MUST pass
+  `openspec validate` (run inside the node container in CI). NEVER commit or push
+  invalid OpenSpec files — validate before any commit/PR.
 - **Ticking boxes**: tick `- [x]` only after the verification actually passed (locally
   and in the PR's CI run); never tick ahead of verification.
 - **Merges**: regular merge (no squash/rebase/force-push of pushed history).
