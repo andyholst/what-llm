@@ -1,0 +1,2 @@
+# Dev-only dependencies (CI + local testing). The runtime image installs requirements.txt only.
+pytest>=8.0,<9.0
