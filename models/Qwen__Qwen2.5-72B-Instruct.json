@@ -78,5 +78,80 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "Qwen: strong general-purpose chat, reasoning and coding; long context; multilingual.",
+    "best_for": [
+      "chat",
+      "reasoning",
+      "coding",
+      "rag"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context",
+      "Strong instruction following and general chat",
+      "Good multilingual support",
+      "Long context windows (often 32k+)"
+    ],
+    "weaknesses": [
+      "Heavier than comparable 7-8B models for the same quality",
+      "Some variants need specific tooling for best results"
+    ],
+    "limitations": [
+      "Knowledge cutoff varies by variant (see model card)",
+      "Coder/reasoner variants are specialized"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Strong instruction following and general chat",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Good multilingual support",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Long context windows (often 32k+)",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Heavier than comparable 7-8B models for the same quality",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Some variants need specific tooling for best results",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Knowledge cutoff varies by variant (see model card)",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Coder/reasoner variants are specialized",
+        "source": "curated",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "qwen",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "instruct",
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "knowledge_cutoff": "2024-09",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

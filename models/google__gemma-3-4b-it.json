@@ -84,5 +84,46 @@
       "note": "Practical at the smallest quant (~3.63 GB est.) on flagship iPhone"
     }
   },
+  "profile": {
+    "summary": "google/gemma-3-4b-it: see strengths/weaknesses for what it is good at and where it falls short.",
+    "best_for": [
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 32,768 tokens of context"
+    ],
+    "weaknesses": [],
+    "limitations": [
+      "Model card is gated — README not accessible to anonymous crawls"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 32,768 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Model card is gated — README not accessible to anonymous crawls",
+        "source": "config",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "gemma",
+  "commercial_ok": true,
+  "context_window": 32768,
+  "model_type": "instruct",
+  "languages": [
+    "en",
+    "es",
+    "de",
+    "fr",
+    "ja",
+    "ko",
+    "pt",
+    "zh"
+  ],
+  "knowledge_cutoff": "2025-02",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

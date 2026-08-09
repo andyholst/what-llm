@@ -28,7 +28,7 @@ from pathlib import Path
 
 import requests
 
-from whatllm import artifacts, estimator
+from whatllm import artifacts, estimator, profile
 
 log = logging.getLogger("whatllm.crawl")
 
@@ -39,12 +39,64 @@ MAX_RETRIES = 3
 QUANT_RE = re.compile(
     r"-(Q\d+_K(?:_\w+)?|Q8_0|Q6_K(?:_L)?|IQ\d(?:_\w+)?)(?:-\d+-of-\d+)?\.gguf$", re.I)
 
+# licenses that forbid commercial use (curated; extend as needed)
+NC_LICENSES = {
+    "cc-by-nc-4.0", "cc-by-nc-3.0", "cc-by-nc-2.5", "cc-by-nc-2.0", "cc-by-nc-1.0",
+    "cc-by-nc-sa-4.0", "cc-by-nc-sa-3.0", "cc-by-nc-nd-4.0", "cc-by-nc-nd-3.0",
+    "nc", "non-commercial", "odc-by-1.0" + "-nc",  # no-op safety: exact ids only below
+}
+NC_LICENSES.discard("odc-by-1.0-nc")
+
+# licenses that ALLOW commercial use but with conditions (shown as a limitation note)
+CONDITIONAL_LICENSES = {"llama3.1", "llama3.2", "llama3.3", "gemma", "qwen", "deepseek"}
+
 # config keys that mark a model as MoE (DeepSeek-V3 uses n_routed_experts and has no
 # 'moe' anywhere in model_type/architectures — verified against the live API)
 EXPERT_KEYS = ("num_experts", "num_local_experts", "n_routed_experts", "n_shared_experts",
                "moe_intermediate_size", "num_experts_per_tok", "n_experts")
 
 FOCUS_PIPELINES = {"text-generation", "image-text-to-text", "text-to-text"}
+
+LANG_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
+CUTOFF_RE = re.compile(
+    r"(?:knowledge|training data|cutoff)[^.]{0,90}?((?:19|20)\d{2})[-/.](\d{1,2})", re.I)
+
+
+def commercial_ok(license_name: str) -> bool:
+    return license_name.lower() not in NC_LICENSES
+
+
+def detect_model_type(model_id: str, base_model, tags: list[str] | None,
+                      pipeline_tag: str | None) -> str:
+    """base/instruct/chat/reasoner/vision from cardData.base_model (a LIST when present),
+    id-suffix heuristics, and tags — top-level base_model is null on BOTH variants."""
+    tags = tags or []
+    mid = model_id.lower()
+    if "vision" in mid or "-vl" in mid or mid.endswith("vl") or pipeline_tag == "image-text-to-text":
+        return "vision"
+    if any(k in mid for k in ("reasoner", "thinking", "-r1", "-r2", "reasoning")):
+        return "reasoner"
+    if base_model:  # instruct/chat lineage exists
+        if "conversational" in tags or any(k in mid for k in ("-chat", "-it", "-instruct")):
+            return "chat"
+        return "instruct"
+    return "base"
+
+
+def detect_languages(tags: list[str] | None) -> list[str]:
+    return sorted({t for t in (tags or []) if LANG_RE.fullmatch(t)})
+
+
+def detect_knowledge_cutoff(readme_text: str | None) -> str | None:
+    if not readme_text:
+        return None
+    m = CUTOFF_RE.search(readme_text)
+    if not m:
+        return None
+    try:
+        return f"{m.group(1)}-{int(m.group(2)):02d}"
+    except ValueError:
+        return None
 
 
 class HFError(RuntimeError):
@@ -69,6 +121,17 @@ def http_get_json(url: str, params: dict | None = None, timeout: float = 30.0) -
     if m:
         cursor = m.group(1)
     return resp.json(), cursor
+
+
+def http_get_text(url: str, timeout: float = 30.0) -> str | None:
+    """GET url -> raw text, or None on 4xx/5xx (gated/404). Injectable for tests."""
+    try:
+        resp = requests.get(url, timeout=timeout)
+    except requests.RequestException:
+        return None
+    if resp.status_code >= 400:
+        return None
+    return resp.text
 
 
 def next_cursor_url(cursor: str) -> str:
@@ -132,7 +195,7 @@ class Crawler:
         """Full metadata for one model: config, safetensors, gguf, tags (with expand)."""
         detail, _ = http_get_json(
             f"{API}/models/{model_id}",
-            params={"expand": ["config", "safetensors", "gguf", "tags"]},
+            params={"expand": ["config", "safetensors", "gguf", "tags", "cardData", "evalResults"]},
         )
         if not isinstance(detail, dict) or not detail.get("id"):
             raise HFError(f"bad detail response for {model_id}")
@@ -221,6 +284,69 @@ class Crawler:
         model["quants"] = real if real else estimator.synthesize_quants(model["parameters_b"])
         model["hardware"] = estimator.hardware_flags(model["parameters_b"], model["quants"])
 
+    # ---- metadata enrichment (extend-model-metadata, issues #8-#12, #15) ----
+    def fetch_readme(self, model_id: str) -> str | None:
+        """README text (None when gated/404). Gating is checked by the caller."""
+        return http_get_text(f"https://huggingface.co/{model_id}/raw/main/README.md")
+
+    def fetch_config_raw(self, model_id: str) -> dict | None:
+        """Raw config.json (None when gated/404). expand=config only carries a curated subset."""
+        try:
+            cfg, _ = http_get_json(f"https://huggingface.co/{model_id}/raw/main/config.json")
+        except HFError:
+            return None
+        return cfg if isinstance(cfg, dict) else None
+
+    @staticmethod
+    def _enrich(record: dict, detail: dict, readme_text: str | None,
+                config: dict | None) -> None:
+        """Add license/commercial_ok/context_window/model_type/languages/cutoff/
+        benchmarks/profile to a contract record (all derived programmatically)."""
+        card = detail.get("cardData") or {}
+        tags = detail.get("tags") or []
+        license_name = (card.get("license") or
+                        next((t.split(":", 1)[1] for t in tags if t.startswith("license:")),
+                             "unknown"))
+        ctx = None
+        if isinstance(config, dict):
+            ctx = (config.get("max_position_embeddings") or config.get("n_positions"))
+            if ctx is None and isinstance(config.get("sliding_window"), int):
+                ctx = config["sliding_window"]
+        gated = detail.get("gated") not in (False, None)
+        base_model = card.get("base_model")  # LIST when present (skeptic C2/C4)
+        model_type = detect_model_type(record["id"], base_model, tags,
+                                       detail.get("pipeline_tag"))
+        benchmarks = [
+            {
+                "dataset": (e.get("data") or {}).get("dataset", {}).get("id", "unknown"),
+                "value": (e.get("data") or {}).get("value"),
+                "verified": bool(e.get("verified")),
+                "date": (e.get("data") or {}).get("date"),
+                "source": ((e.get("data") or {}).get("source") or {}).get("name"),
+            }
+            for e in (detail.get("evalResults") or [])
+        ]
+
+        record["license"] = license_name
+        record["commercial_ok"] = commercial_ok(license_name)
+        record["context_window"] = ctx
+        record["model_type"] = model_type
+        record["languages"] = detect_languages(tags)
+        record["knowledge_cutoff"] = detect_knowledge_cutoff(readme_text)
+        record["benchmarks"] = benchmarks
+        record["profile"] = profile.build_profile(
+            record["id"],
+            readme_text=readme_text,
+            family=profile.family_for(record["id"]),
+            tags=tags,
+            eval_entries=benchmarks,
+            context_window=ctx,
+            license_name=license_name,
+            commercial_ok=record["commercial_ok"],
+            model_type=model_type,
+            gated=gated,
+        )
+
     # ---- pipeline ----
     def run(self) -> list[dict]:
         self.load_state()
@@ -237,6 +363,13 @@ class Crawler:
             if record is None:
                 continue
             self.build_quants(record, detail)
+            readme_text = None
+            config = None
+            if detail.get("gated") in (False, None):
+                readme_text = self.fetch_readme(model_id)
+                time.sleep(RATE_DELAY_S)
+                config = self.fetch_config_raw(model_id)
+            self._enrich(record, detail, readme_text, config)
             errors = artifacts.validate_model(record)
             if errors:
                 log.warning("skip %s: schema invalid: %s", model_id, errors[:2])

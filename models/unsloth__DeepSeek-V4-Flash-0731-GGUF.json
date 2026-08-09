@@ -90,5 +90,65 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "GGUF/quantized mirror (often UD quants) for local inference.",
+    "best_for": [
+      "local-inference"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context",
+      "Aggressive dynamic quants shrink file size",
+      "Real split-file sizes exposed"
+    ],
+    "weaknesses": [
+      "Very low-bit quants trade quality",
+      "Quality follows the upstream model"
+    ],
+    "limitations": [
+      "Check the upstream model card for license/limitations"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Aggressive dynamic quants shrink file size",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Real split-file sizes exposed",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Very low-bit quants trade quality",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Quality follows the upstream model",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Check the upstream model card for license/limitations",
+        "source": "curated",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "deepseek",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "reasoner",
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "knowledge_cutoff": "2025-07",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

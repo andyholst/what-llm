@@ -41,10 +41,17 @@ class FakeAPI:
         self.pages: list[list[dict]] = []
         self.tree: dict[str, list] = {}
         self.details: dict[str, dict] = {}
+        self.configs: dict[str, dict] = {}
+        self.readmes: dict[str, str] = {}
         self.cursor_next = True
 
     def __call__(self, url, params=None, timeout=30.0):
         self.calls.append((url, params))
+        if "/raw/main/" in url:
+            model_id = url.split("huggingface.co/")[1].split("/raw/main")[0]
+            if url.endswith("config.json"):
+                return self.configs.get(model_id), None
+            return self.readmes.get(model_id), None
         if "/tree/main" in url:
             model_id = url.split("/api/models/")[1].split("/tree")[0]
             return self.tree.get(model_id, []), None
@@ -71,6 +78,9 @@ def make_crawler(fake: FakeAPI, **kw):
 def fake(monkeypatch):
     f = FakeAPI()
     monkeypatch.setattr(cm, "http_get_json", f)
+    monkeypatch.setattr(
+        cm, "http_get_text",
+        lambda url: f.readmes.get(url.split("huggingface.co/")[1].split("/raw/main")[0]))
     return f
 
 

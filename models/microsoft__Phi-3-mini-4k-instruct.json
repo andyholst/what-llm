@@ -84,5 +84,39 @@
       "note": "Practical at the smallest quant (~3.64 GB est.) on flagship iPhone"
     }
   },
+  "profile": {
+    "summary": "microsoft/Phi-3-mini-4k-instruct: see strengths/weaknesses for what it is good at and where it falls short.",
+    "best_for": [
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 4,096 tokens of context"
+    ],
+    "weaknesses": [],
+    "limitations": [
+      "Short context window (4,096 tokens)"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 4,096 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Short context window (4,096 tokens)",
+        "source": "config",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "mit",
+  "commercial_ok": true,
+  "context_window": 4096,
+  "model_type": "instruct",
+  "languages": [
+    "en"
+  ],
+  "knowledge_cutoff": "2023-10",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

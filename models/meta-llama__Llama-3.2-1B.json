@@ -84,5 +84,51 @@
       "note": "Practical at the smallest quant (~2.05 GB est.) on flagship iPhone"
     }
   },
+  "profile": {
+    "summary": "meta-llama/Llama-3.2-1B: see strengths/weaknesses for what it is good at and where it falls short.",
+    "best_for": [
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context"
+    ],
+    "weaknesses": [],
+    "limitations": [
+      "Model card is gated — README not accessible to anonymous crawls",
+      "Base (pre-instruct) model — use the instruct/chat variant for conversation"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Model card is gated — README not accessible to anonymous crawls",
+        "source": "config",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Base (pre-instruct) model — use the instruct/chat variant for conversation",
+        "source": "curated",
+        "confidence": "high"
+      }
+    ]
+  },
+  "license": "llama3.2",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "base",
+  "languages": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "hi",
+    "pt",
+    "zh"
+  ],
+  "knowledge_cutoff": "2023-12",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

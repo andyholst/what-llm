@@ -78,5 +78,45 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "meta-llama/Llama-3.1-70B-Instruct: see strengths/weaknesses for what it is good at and where it falls short.",
+    "best_for": [
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context"
+    ],
+    "weaknesses": [],
+    "limitations": [
+      "Model card is gated — README not accessible to anonymous crawls"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Model card is gated — README not accessible to anonymous crawls",
+        "source": "config",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "llama3.1",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "instruct",
+  "languages": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "hi",
+    "pt",
+    "zh"
+  ],
+  "knowledge_cutoff": "2023-12",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

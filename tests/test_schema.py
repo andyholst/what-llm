@@ -40,6 +40,21 @@ VALID = {
                    "note": "Practical at the smallest quant (~3.6 GB est.) on flagship iPhone"},
     },
     "last_updated": "2026-08-09",
+    "profile": {
+        "summary": "Qwen: strong general-purpose chat.",
+        "best_for": ["chat", "reasoning"],
+        "strengths": ["Strong instruction following"],
+        "weaknesses": ["Heavier than comparable models"],
+        "limitations": ["Knowledge cutoff at training time"],
+        "provenance": [{"claim": "Strong instruction following", "source": "curated", "confidence": "medium"}],
+    },
+    "license": "apache-2.0",
+    "commercial_ok": True,
+    "context_window": 40960,
+    "model_type": "chat",
+    "languages": ["en", "zh"],
+    "knowledge_cutoff": "2025-03",
+    "benchmarks": [{"dataset": "ifstruct-v1.0", "value": 79.75, "verified": False, "date": "2026-06-30", "source": "community"}],
 }
 
 
@@ -55,6 +70,8 @@ def test_valid_record_passes():
 @pytest.mark.parametrize("field", [
     "id", "name", "author", "parameters_b", "architecture", "pipeline_tag",
     "hf_url", "trending_score", "downloads", "quants", "hardware", "last_updated",
+    "profile", "license", "commercial_ok", "context_window", "model_type",
+    "languages", "knowledge_cutoff", "benchmarks",
 ])
 def test_missing_required_field_fails(field):
     rec = {k: v for k, v in VALID.items() if k != field}
@@ -103,6 +120,30 @@ def test_mobile_category_rejected():
 def test_macbook_48gb_plus_key_rejected():
     rec = json.loads(json.dumps(VALID))
     rec["hardware"]["macbook"] = {k: True for k in ("16gb", "24gb", "32gb", "48gb_plus")}
+    assert validate(rec)
+
+
+def test_bad_model_type_rejected():
+    rec = json.loads(json.dumps(VALID))
+    rec["model_type"] = "hybrid"
+    assert validate(rec)
+
+
+def test_benchmark_requires_verified():
+    rec = json.loads(json.dumps(VALID))
+    del rec["benchmarks"][0]["verified"]
+    assert validate(rec)
+
+
+def test_profile_provenance_source_enum():
+    rec = json.loads(json.dumps(VALID))
+    rec["profile"]["provenance"][0]["source"] = "hunches"
+    assert validate(rec)
+
+
+def test_profile_requires_all_slots():
+    rec = json.loads(json.dumps(VALID))
+    del rec["profile"]["limitations"]
     assert validate(rec)
 
 

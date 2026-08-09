@@ -112,6 +112,11 @@ lessons and gaps as they are discovered.
   tests couple to it (searches like "DeepSeek-R1"). The real crawl output is verified
   live (`python -m whatllm.crawl_models --out /tmp/...`) and regenerated on the host
   with `make crawl`; never overwrite models/ with real data and commit it blindly.
+- 2026-08-10 (enrichment, skeptic-verified): `expand[]=config` carries only a curated
+  subset — context length needs the RAW config.json fetch; `cardData.base_model` is a
+  LIST (top-level base_model is null on both variants); evalResults is a LIST of
+  `{verified, data, pullRequest}`; gate README/config fetches on `gated != false`;
+  enrichment budget 482 req/150 models ≈ 96% of the anonymous 500/5-min window.
 
 ## Verification gate (before ticking any task)
 

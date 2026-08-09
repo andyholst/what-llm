@@ -90,5 +90,70 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "GGUF mirror: quantization of a base model for local inference.",
+    "best_for": [
+      "local-inference"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context",
+      "Ready-to-use GGUF files with real quant sizes",
+      "Broad quant ladder"
+    ],
+    "weaknesses": [
+      "Quality follows the upstream model",
+      "Uses the upstream model's license"
+    ],
+    "limitations": [
+      "Check the upstream model card for license/limitations"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Ready-to-use GGUF files with real quant sizes",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Broad quant ladder",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Quality follows the upstream model",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Uses the upstream model's license",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Check the upstream model card for license/limitations",
+        "source": "curated",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "llama3.1",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "instruct",
+  "languages": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "hi",
+    "pt",
+    "zh"
+  ],
+  "knowledge_cutoff": "2023-12",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

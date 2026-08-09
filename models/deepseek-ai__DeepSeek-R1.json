@@ -78,5 +78,73 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "DeepSeek: frontier-scale reasoning and coding MoE models.",
+    "best_for": [
+      "reasoning",
+      "coding",
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context",
+      "Frontier reasoning and math",
+      "MoE design keeps active params low"
+    ],
+    "weaknesses": [
+      "Very large total parameter count — datacenter class",
+      "Specialized tooling for some variants"
+    ],
+    "limitations": [
+      "Consumer GPUs rarely fit even the smallest quants",
+      "Gated on some variants"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Frontier reasoning and math",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "MoE design keeps active params low",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Very large total parameter count — datacenter class",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Specialized tooling for some variants",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Consumer GPUs rarely fit even the smallest quants",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated on some variants",
+        "source": "curated",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "deepseek",
+  "commercial_ok": true,
+  "context_window": 131072,
+  "model_type": "reasoner",
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "knowledge_cutoff": "2024-11",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }

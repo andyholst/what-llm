@@ -7,7 +7,9 @@
   "additionalProperties": false,
   "required": [
     "id", "name", "author", "parameters_b", "architecture", "pipeline_tag",
-    "hf_url", "trending_score", "downloads", "quants", "hardware", "last_updated"
+    "hf_url", "trending_score", "downloads", "quants", "hardware",
+    "profile", "license", "commercial_ok", "context_window", "model_type",
+    "languages", "knowledge_cutoff", "benchmarks", "last_updated"
   ],
   "properties": {
     "id": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
@@ -124,6 +126,52 @@
         }
       }
     },
-    "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "best_for", "strengths", "weaknesses", "limitations", "provenance"],
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "best_for": {"type": "array", "items": {"type": "string"}},
+        "strengths": {"type": "array", "items": {"type": "string"}},
+        "weaknesses": {"type": "array", "items": {"type": "string"}},
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claim", "source"],
+            "properties": {
+              "claim": {"type": "string", "minLength": 1},
+              "source": {"enum": ["readme", "evals", "config", "tags", "curated"]},
+              "confidence": {"enum": ["high", "medium", "low"]}
+            }
+          }
+        }
+      }
+    },
+    "license": {"type": "string"},
+    "commercial_ok": {"type": "boolean"},
+    "context_window": {"type": ["integer", "null"], "minimum": 0},
+    "model_type": {"enum": ["base", "instruct", "chat", "reasoner", "vision"]},
+    "languages": {"type": "array", "items": {"type": "string"}},
+    "knowledge_cutoff": {"type": ["string", "null"]},
+    "benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dataset", "value", "verified"],
+        "properties": {
+          "dataset": {"type": "string", "minLength": 1},
+          "value": {"type": "number"},
+          "verified": {"type": "boolean"},
+          "date": {"type": ["string", "null"]},
+          "source": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "last_updated": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
   }
 }
