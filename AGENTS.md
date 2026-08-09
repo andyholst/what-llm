@@ -117,6 +117,12 @@ lessons and gaps as they are discovered.
   LIST (top-level base_model is null on both variants); evalResults is a LIST of
   `{verified, data, pullRequest}`; gate README/config fetches on `gated != false`;
   enrichment budget 482 req/150 models ≈ 96% of the anonymous 500/5-min window.
+- **README must stay current (2026-08-10)**: every PR that adds a user-facing feature,
+  CLI flag, workflow, or deployment change MUST update README.md in the same commit
+  (features list, usage, commands, URLs). Gate: README is touched whenever the diff
+  touches user-facing surface (index.html, Makefile targets, .github/workflows,
+  crawler flags, contract fields). GitHub Pages live demo section added; deploy
+  info in `.github/workflows/pages.yml`.
 
 ## Verification gate (before ticking any task)
 
