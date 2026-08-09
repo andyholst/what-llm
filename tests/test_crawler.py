@@ -40,6 +40,7 @@ class FakeAPI:
         self.calls: list[tuple[str, dict | None]] = []
         self.pages: list[list[dict]] = []
         self.tree: dict[str, list] = {}
+        self.details: dict[str, dict] = {}
         self.cursor_next = True
 
     def __call__(self, url, params=None, timeout=30.0):
@@ -47,6 +48,10 @@ class FakeAPI:
         if "/tree/main" in url:
             model_id = url.split("/api/models/")[1].split("/tree")[0]
             return self.tree.get(model_id, []), None
+        if url.startswith("https://huggingface.co/api/models/"):
+            # detail call: .../api/models/<author>/<name> (params go to requests, not the url)
+            model_id = url.split("/api/models/")[1]
+            return self.details.get(model_id, {}), None
         if "cursor=" in url:
             return (self.pages[1] if len(self.pages) > 1 else []), None
         return (self.pages[0] if self.pages else []), ("https://x?cursor=abc" if self.cursor_next else None)
@@ -167,6 +172,7 @@ def test_non_gguf_synthesizes_quants(fake):
 # ---------------- 5.5 schema gate ----------------
 def test_invalid_record_skipped(fake, monkeypatch, caplog):
     fake.pages = [[raw_entry("a/ok")]]
+    fake.details["a/ok"] = raw_entry("a/ok")
     monkeypatch.setattr(cm.artifacts, "validate_model", lambda rec: ["boom"])
     c = cm.Crawler(limit=5, focus="none", dry_run=True)
     models = c.run()
@@ -178,6 +184,8 @@ def test_resume_skips_completed(fake, tmp_path):
     state = tmp_path / "state.json"
     state.write_text(json.dumps({"completed": ["a/done"]}), encoding="utf-8")
     fake.pages = [[raw_entry("a/done"), raw_entry("b/new")]]
+    fake.details["a/done"] = raw_entry("a/done")
+    fake.details["b/new"] = raw_entry("b/new")
     c = cm.Crawler(limit=5, focus="none", dry_run=False, state_file=str(state))
     models = c.run()
     assert [m["id"] for m in models] == ["b/new"]
@@ -195,6 +203,7 @@ def test_cli_help(capsys):
 
 def test_cli_dry_run_no_writes(fake, tmp_path, monkeypatch):
     fake.pages = [[raw_entry("a/m1")]]
+    fake.details["a/m1"] = raw_entry("a/m1")
     out = tmp_path / "out"
     rc = cm.main(["--limit", "1", "--filter", "none", "--dry-run", "--out", str(out),
                   "--state", str(tmp_path / "s.json")])
@@ -204,6 +213,7 @@ def test_cli_dry_run_no_writes(fake, tmp_path, monkeypatch):
 
 def test_cli_real_run_writes_artifacts(fake, tmp_path):
     fake.pages = [[raw_entry("a/m1", downloads=7)]]
+    fake.details["a/m1"] = raw_entry("a/m1", downloads=7)
     fake.cursor_next = False
     out = tmp_path / "models"
     rc = cm.main(["--limit", "1", "--filter", "none", "--out", str(out),

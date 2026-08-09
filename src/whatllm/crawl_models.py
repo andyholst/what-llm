@@ -107,12 +107,15 @@ class Crawler:
 
     # ---- fetch ----
     def fetch_trending(self) -> list[dict]:
-        """Page through the trending list; returns raw model dicts (no expands applied)."""
+        """Page through the trending list; returns raw list entries.
+
+        NOTE: the list endpoint DROPS pipeline_tag/tags when expand= is passed, so the
+        list is fetched PLAIN (for filtering) and details are fetched per model.
+        """
         collected: list[dict] = []
         cursor: str | None = None
         while len(collected) < self.limit:
-            params: dict = {"sort": "trendingScore", "limit": min(PAGE_SIZE, self.limit - len(collected)),
-                            "expand": ["config", "safetensors", "gguf"]}
+            params: dict = {"sort": "trendingScore", "limit": min(PAGE_SIZE, self.limit - len(collected))}
             url = next_cursor_url(cursor) if cursor else f"{API}/models"
             page, cursor = http_get_json(url, params=params if not cursor else None)
             if not isinstance(page, list) or not page:
@@ -123,6 +126,17 @@ class Crawler:
                 break
             time.sleep(RATE_DELAY_S)
         return collected[: self.limit]
+
+    @staticmethod
+    def fetch_detail(model_id: str) -> dict:
+        """Full metadata for one model: config, safetensors, gguf, tags (with expand)."""
+        detail, _ = http_get_json(
+            f"{API}/models/{model_id}",
+            params={"expand": ["config", "safetensors", "gguf", "tags"]},
+        )
+        if not isinstance(detail, dict) or not detail.get("id"):
+            raise HFError(f"bad detail response for {model_id}")
+        return detail
 
     def _keep(self, raw: dict) -> bool:
         if self.focus == "none":
@@ -218,10 +232,11 @@ class Crawler:
             model_id = raw.get("id")
             if model_id in self.completed:
                 continue
-            record = self.extract(raw)
+            detail = self.fetch_detail(model_id)
+            record = self.extract(detail)
             if record is None:
                 continue
-            self.build_quants(record, raw)
+            self.build_quants(record, detail)
             errors = artifacts.validate_model(record)
             if errors:
                 log.warning("skip %s: schema invalid: %s", model_id, errors[:2])
