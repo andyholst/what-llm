@@ -1,0 +1,94 @@
+{
+  "id": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+  "name": "DeepSeek V4 Flash 0731 GGUF",
+  "author": "unsloth",
+  "parameters_b": 304.18,
+  "architecture": "moe",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF",
+  "trending_score": 625,
+  "downloads": 189000,
+  "quants": [
+    {
+      "name": "UD-IQ1_M",
+      "size_gb": 86.9,
+      "estimated_vram_gb": 88.2,
+      "notes": "Aggressive 1-bit dynamic quant — only practical option for 128 GB Macs"
+    },
+    {
+      "name": "UD-Q2_K_XL",
+      "size_gb": 96.8,
+      "estimated_vram_gb": 98.1,
+      "notes": "2-bit XL quant, compact"
+    },
+    {
+      "name": "UD-Q3_K_XL",
+      "size_gb": 128.2,
+      "estimated_vram_gb": 129.5,
+      "notes": "3-bit XL quant"
+    },
+    {
+      "name": "UD-Q4_K_XL",
+      "size_gb": 155.1,
+      "estimated_vram_gb": 156.4,
+      "notes": "4-bit XL quant — higher quality"
+    },
+    {
+      "name": "UD-Q8_K_XL",
+      "size_gb": 161.9,
+      "estimated_vram_gb": 163.2,
+      "notes": "8-bit XL quant — highest quality"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "48gb": false
+    },
+    "amd": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false
+    },
+    "macbook": {
+      "16gb": false,
+      "24gb": false,
+      "32gb": false,
+      "48gb": false,
+      "64gb": false,
+      "96gb": true,
+      "128gb": true
+    },
+    "mac_studio": {
+      "32gb": false,
+      "64gb": false,
+      "96gb": true,
+      "128gb": true,
+      "192gb": true,
+      "256gb": true,
+      "512gb": true
+    },
+    "dgx": {
+      "640gb": true,
+      "1128gb": true,
+      "1440gb": true
+    },
+    "android": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "note": "Too large for Android phones"
+    },
+    "iphone": {
+      "8gb": false,
+      "12gb": false,
+      "note": "Too large for iPhone phones"
+    }
+  },
+  "last_updated": "2026-08-09"
+}

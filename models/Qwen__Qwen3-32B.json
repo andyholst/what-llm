@@ -1,30 +1,30 @@
 {
-  "id": "deepseek-ai/DeepSeek-R1",
-  "name": "DeepSeek R1",
-  "author": "deepseek-ai",
-  "parameters_b": 671.0,
-  "architecture": "moe",
+  "id": "Qwen/Qwen3-32B",
+  "name": "Qwen3 32B",
+  "author": "Qwen",
+  "parameters_b": 32.76,
+  "architecture": "dense",
   "pipeline_tag": "text-generation",
-  "hf_url": "https://huggingface.co/deepseek-ai/DeepSeek-R1",
-  "trending_score": 860,
-  "downloads": 6500000,
+  "hf_url": "https://huggingface.co/Qwen/Qwen3-32B",
+  "trending_score": 830,
+  "downloads": 410000,
   "quants": [
     {
       "name": "Q4_K_M",
-      "size_gb": 410.65,
-      "estimated_vram_gb": 411.95,
+      "size_gb": 20.05,
+      "estimated_vram_gb": 21.35,
       "notes": "Recommended balanced quant"
     },
     {
       "name": "Q5_K_M",
-      "size_gb": 478.42,
-      "estimated_vram_gb": 479.72,
+      "size_gb": 23.36,
+      "estimated_vram_gb": 24.66,
       "notes": "Higher quality, slightly larger"
     },
     {
       "name": "Q8_0",
-      "size_gb": 713.27,
-      "estimated_vram_gb": 714.57,
+      "size_gb": 34.82,
+      "estimated_vram_gb": 36.12,
       "notes": "Near-lossless, needs more VRAM"
     }
   ],
@@ -33,31 +33,31 @@
       "8gb": false,
       "12gb": false,
       "16gb": false,
-      "24gb": false,
-      "48gb": false
+      "24gb": true,
+      "48gb": true
     },
     "amd": {
       "8gb": false,
       "12gb": false,
       "16gb": false,
-      "24gb": false
+      "24gb": true
     },
     "macbook": {
       "16gb": false,
       "24gb": false,
-      "32gb": false,
-      "48gb": false,
-      "64gb": false,
-      "96gb": false,
-      "128gb": false
+      "32gb": true,
+      "48gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true
     },
     "mac_studio": {
-      "32gb": false,
-      "64gb": false,
-      "96gb": false,
-      "128gb": false,
-      "192gb": false,
-      "256gb": false,
+      "32gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true,
+      "192gb": true,
+      "256gb": true,
       "512gb": true
     },
     "dgx": {
