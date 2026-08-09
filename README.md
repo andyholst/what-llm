@@ -2,30 +2,98 @@
 
 What LLM can my hardware actually run?
 
-A two-part project:
+Two parts, one JSON contract:
 
-1. **Python crawler** (`crawl_models.py`) — fetches currently trending models from
-   Hugging Face, extracts metadata (parameters, dense/MoE architecture, GGUF quants,
+1. **Python data pipeline** (`src/whatllm/crawl_models.py`) — fetches currently trending
+   models from Hugging Face, extracts metadata (parameters, dense/MoE, GGUF quants,
    downloads), estimates VRAM per quant, and writes **one strict-contract JSON file per
    model** into `models/` (plus `index.json` / `index.js` / `bundle.js`).
-2. **Single-file vanilla frontend** (`index.html`) — search, model cards, quant
-   selector, and NVIDIA / AMD / MacBook / mobile hardware boxes that turn green/grey
-   live from the selected quant (`est. VRAM + 1.5 GB ≤ device`).
+2. **Single-file vanilla frontend** (`index.html`) — search by model **or by your
+   hardware**: pick a category (NVIDIA / AMD / MacBook / Mac Studio / DGX / Android /
+   iPhone) and your VRAM/RAM, tick "only models that fit", and browse models that match.
+   Hardware boxes turn green/grey live from the selected quant
+   (`est. VRAM + 1.5 GB ≤ device`; Macs use `unified − 3.5 GB`).
 
-Everything runs through **nerdctl** with a Dockerfile (deps installed in-image) and
-bind-mounted volumes so the JSON output persists on the host.
+## Quickstart
 
-## Status
-
-In construction — spec-driven via OpenSpec (`openspec/changes/add-hf-model-pipeline`).
-See `AGENTS.md` for the behavior contract. Licensed under the **Apache License 2.0**.
-
-## Quickstart (host with rootless nerdctl)
+### Full gate (tests) — what CI runs
 
 ```sh
-make build            # nerdctl build
-make crawl LIMIT=150  # run the crawler, output into ./models
-make serve            # http://localhost:8000
+make ci          # docker compose: builds + runs the py (pytest) and node (jsdom +
+                 # Playwright + node --check + openspec validate) containers
+make py-test     # python tests only
+make node-test   # node-side checks only
 ```
 
-More details land with the containerization milestone.
+GitHub Actions runs `make ci` on every PR and push to `main` — the same command works
+locally, so CI and your machine run the identical gate. Requires docker (or rootless
+nerdctl aliased as `docker`). On a rootless-nerdctl host, `docker compose run` hardcodes
+`-it` (needs a TTY or `script -qec "…" /dev/null`) and may hit the 10.4.0.0/24
+default-bridge collision — see AGENTS.md for the fix (restart rootless containerd or
+pre-create the network).
+
+### Crawl + serve (nerdctl, host-side)
+
+```sh
+make build            # nerdctl build -t what-llm:latest .
+make crawl LIMIT=150  # run the crawler; per-model JSON lands in ./models (bind-mounted)
+make serve            # http://localhost:8000 serving ./models
+```
+
+The crawler runs inside the container with `--network host`, `--user $(id -u):$(id -g)`,
+and bind mounts for `models/` (output) and `data/` (checkpoint/resume state + HF cache).
+
+## JSON contract (strict — `schemas/model.schema.json`)
+
+Each `models/<author>__<model>.json` file (id with `/` → `__`):
+
+```json
+{
+  "id": "author/model-name",
+  "name": "Display Name",
+  "author": "author",
+  "parameters_b": 8.19,
+  "architecture": "dense | moe",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/author/model-name",
+  "trending_score": 1234,
+  "downloads": 50000,
+  "quants": [{"name": "Q4_K_M", "size_gb": 4.9, "estimated_vram_gb": 6.2, "notes": "…"}],
+  "hardware": {
+    "nvidia":   {"8gb": false, "12gb": true, "16gb": true, "24gb": true, "48gb": true},
+    "amd":      {"8gb": false, "12gb": true, "16gb": true, "24gb": true},
+    "macbook":  {"16gb": false, "24gb": true, "32gb": true, "48gb": true, "64gb": true, "96gb": true, "128gb": true},
+    "mac_studio":{"32gb": true, "64gb": true, "96gb": true, "128gb": true, "192gb": true, "256gb": true, "512gb": true},
+    "dgx":      {"640gb": true, "1128gb": true, "1440gb": true},
+    "android":  {"8gb": true, "12gb": true, "16gb": true, "24gb": true, "note": "…"},
+    "iphone":   {"8gb": true, "12gb": true, "note": "…"}
+  },
+  "last_updated": "2026-08-09"
+}
+```
+
+Rules (contract): `estimated_vram_gb = size_gb + 1.3`; a tier fits iff
+`est + 1.5 ≤ tier_vram`; MacBook/Mac Studio use `unified − 3.5`; DGX uses total system
+GPU memory (DGX A100/H100 640, H200 1128, B200 1440 GB); phones are practical only for
+≤4 B models whose smallest quant fits an 8 GB budget. MoE uses TOTAL parameters (all
+experts resident). Bytes/param: Q4_K_M 0.612, Q5_K_M 0.713, Q8_0 1.063, FP16 2.0
+(llama.cpp measured); GGUF repos use real file sizes from the HF tree endpoint.
+
+## Layout
+
+```
+src/whatllm/            Python package (estimator, artifacts, crawler, make_samples)
+schemas/                model.schema.json (strict contract)
+models/                 generated per-model JSON + index artifacts (committed snapshot)
+data/                   gitignored runtime state (checkpoint, logs, HF cache)
+index.html              single-file vanilla frontend
+tests/                  pytest (python) + frontend.test.mjs (jsdom) + e2e/ (Playwright)
+docker-compose-files/   CI compose (py + node services)
+docker/                 py.Dockerfile, node.Dockerfile
+openspec/               spec-driven changes (add-hf-model-pipeline, expand-hardware-tiers, add-compose-ci-harness)
+```
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE). See [AGENTS.md](AGENTS.md) for the
+behavior contract (test parity, CI gate, OpenSpec discipline).
