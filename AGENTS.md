@@ -127,3 +127,8 @@ lessons and gaps as they are discovered.
 4. Frontend E2E: served page + `file://` open both work; quant switch flips boxes;
    extreme MoE shows no consumer support.
 5. `make -n` dry-run clean for build/crawl/serve/clean.
+- 2026-08-10 (decision, issue #14): speed estimates — NO per-user-hardware source
+  exists (Artificial Analysis is per-model, llama.cpp tables are manual). Decision:
+  keep the field OUT of the contract for now; the UI shows VRAM fit + quant size and
+  the profile's strengths; a computed est_tok_s from a curated bandwidth table is a
+  possible follow-up, labeled rough + nullable.

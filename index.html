@@ -115,6 +115,18 @@
     <select id="hwtier" aria-label="My device memory" disabled><option value="">VRAM / RAM…</option></select>
     <label class="fitbox"><input type="checkbox" id="hwonly" disabled> only models that fit my hardware</label>
   </div>
+  <div class="searchbar" id="mfilter">
+    <select id="ftype" aria-label="Model type">
+      <option value="">Any model type</option>
+      <option value="base">Base</option>
+      <option value="instruct">Instruct</option>
+      <option value="chat">Chat</option>
+      <option value="reasoner">Reasoner</option>
+      <option value="vision">Vision</option>
+    </select>
+    <select id="fuse" aria-label="Use case"><option value="">Any use case</option></select>
+    <label class="fitbox"><input type="checkbox" id="fcommercial"> commercial-friendly only</label>
+  </div>
   <div class="count" id="count"></div>
 
   <div id="list" class="grid" role="list"></div>
@@ -130,6 +142,18 @@
       <div class="chips" id="d-quants" role="group" aria-label="Quantizations"></div>
       <div class="note" id="d-quant-note"></div>
       <div class="hw" id="d-hw-sections"></div>
+      <div class="profile" id="d-profile">
+        <h3>What is it good for?</h3>
+        <p class="note" id="d-summary"></p>
+        <div class="chips" id="d-bestfor" role="group" aria-label="Best for"></div>
+        <div class="facts" id="d-meta"></div>
+        <div class="pcols">
+          <div><h4>Strengths</h4><ul id="d-strengths"></ul></div>
+          <div><h4>Weaknesses</h4><ul id="d-weaknesses"></ul></div>
+          <div><h4>Limitations</h4><ul id="d-limitations"></ul></div>
+        </div>
+        <div class="hint" id="d-bench"></div>
+      </div>
     </div>
   </section>
 
@@ -147,7 +171,8 @@
   var state = {
     query: "", sort: "trending", models: [], selectedId: null, selectedQuant: 0,
     cache: {}, bundleInjected: false, updated: "",
-    hwcat: "", hwtier: "", hwonly: false
+    hwcat: "", hwtier: "", hwonly: false, ftype: "", fuse: "", fcommercial: false,
+    crawledAt: null
   };
 
   var TIERS = {
@@ -198,8 +223,11 @@
   function filterModels(){
     var q = state.query.trim().toLowerCase();
     var out = state.models.filter(function(m){
-      if(q && (m.name+" "+m.author+" "+m.pipeline_tag+" "+m.id).toLowerCase().indexOf(q) === -1) return false;
+      if(q && (m.name+" "+m.author+" "+m.pipeline_tag+" "+m.id+" "+(m.best_for||[]).join(" ")).toLowerCase().indexOf(q) === -1) return false;
       if(state.hwonly && !fitsMyHardware(m)) return false;
+      if(state.ftype && m.model_type !== state.ftype) return false;
+      if(state.fuse && (m.best_for || []).indexOf(state.fuse) === -1) return false;
+      if(state.fcommercial && m.commercial_ok === false) return false;
       return true;
     });
     var sort = state.sort;
@@ -384,6 +412,7 @@
 
     $("#d-detail").style.display = "block";
     state.updated = m.last_updated;
+    renderProfile(m);
     $("#d-updated").textContent = "last updated " + state.updated;
   }
 
@@ -409,6 +438,62 @@
   });
   $("#hwtier").addEventListener("change", function(){ state.hwtier = $("#hwtier").value; renderList(); });
   $("#hwonly").addEventListener("change", function(){ state.hwonly = $("#hwonly").checked; renderList(); });
+  $("#ftype").addEventListener("change", function(){ state.ftype = $("#ftype").value; renderList(); });
+  $("#fuse").addEventListener("change", function(){ state.fuse = $("#fuse").value; renderList(); });
+  $("#fcommercial").addEventListener("change", function(){ state.fcommercial = $("#fcommercial").checked; renderList(); });
+
+  // ---------- profile panel (issue #13) ----------
+  function renderProfile(m){
+    var prof = m.profile || {};
+    $("#d-summary").textContent = prof.summary || "";
+    var bf = $("#d-bestfor"); bf.textContent = "";
+    (prof.best_for || []).forEach(function(uc){
+      var s = document.createElement("span");
+      s.className = "chip";
+      s.textContent = uc;
+      bf.appendChild(s);
+    });
+    var meta = $("#d-meta"); meta.textContent = "";
+    var addm = function(label, val){
+      var s = document.createElement("span");
+      s.textContent = label + ": " + val;
+      meta.appendChild(s);
+    };
+    var lic = m.license || "unknown";
+    addm("License", lic + (m.commercial_ok === false ? " (non-commercial)" : ""));
+    if(typeof m.context_window === "number") addm("Context", fmtN(m.context_window) + " tokens");
+    if(m.model_type) addm("Type", m.model_type);
+    if(m.languages && m.languages.length) addm("Languages", m.languages.join(", "));
+    if(m.knowledge_cutoff) addm("Knowledge cutoff", m.knowledge_cutoff);
+    var fill = function(sel, list){
+      var ul = $(sel); ul.textContent = "";
+      (list || []).forEach(function(c){
+        var li = document.createElement("li");
+        li.textContent = c;
+        var pv = (prof.provenance || []).filter(function(p){ return p.claim === c; })[0];
+        if(pv) li.title = "source: " + pv.source + (pv.confidence ? " · confidence: " + pv.confidence : "");
+        ul.appendChild(li);
+      });
+    };
+    fill("#d-strengths", prof.strengths);
+    fill("#d-weaknesses", prof.weaknesses);
+    fill("#d-limitations", prof.limitations);
+    var bench = $("#d-bench"); bench.textContent = "";
+    if(m.benchmarks && m.benchmarks.length){
+      bench.textContent = "Benchmarks: " + m.benchmarks.map(function(b){
+        return b.dataset + " " + b.value + (b.verified ? " (verified)" : " (unverified)");
+      }).join(" · ");
+    }
+  }
+
+  function populateUseCases(){
+    var sel = $("#fuse"), seen = [];
+    state.models.forEach(function(m){
+      (m.best_for || []).forEach(function(uc){ if(seen.indexOf(uc) === -1) seen.push(uc); });
+    });
+    seen.sort();
+    seen.forEach(function(uc){ sel.appendChild(new Option(uc, uc)); });
+  }
 
   // ---------- boot ----------
   function boot(){
@@ -421,9 +506,17 @@
       return;
     }
     state.models = window.MODELS_INDEX;
-    var updated = null;
-    state.models.forEach(function(m){ if(!updated || m.last_updated > updated) updated = m.last_updated; });
-    if(updated) { state.updated = updated; $("#d-updated").textContent = "last updated " + updated; }
+    if(window.MODELS_META && MODELS_META.crawled_at){
+      state.crawledAt = MODELS_META.crawled_at;
+      var days = Math.round((Date.now() - new Date(state.crawledAt + "T00:00:00Z").getTime()) / 86400000);
+      $("#d-updated").textContent = "crawled " + (days <= 0 ? "today" : days + " days ago") +
+        " · " + MODELS_META.count + " models";
+    } else {
+      var updated = null;
+      state.models.forEach(function(m){ if(!updated || m.last_updated > updated) updated = m.last_updated; });
+      if(updated) { state.updated = updated; $("#d-updated").textContent = "last updated " + updated; }
+    }
+    populateUseCases();
     renderList();
     var h = location.hash.match(/^#m\/(.+)$/);
     if(h){
