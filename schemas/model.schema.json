@@ -37,7 +37,7 @@
     "hardware": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["nvidia", "amd", "macbook", "mobile"],
+      "required": ["nvidia", "amd", "macbook", "mac_studio", "dgx", "android", "iphone"],
       "properties": {
         "nvidia": {
           "type": "object",
@@ -65,20 +65,60 @@
         "macbook": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["16gb", "24gb", "32gb", "48gb_plus"],
+          "required": ["16gb", "24gb", "32gb", "48gb", "64gb", "96gb", "128gb"],
           "properties": {
             "16gb": { "type": "boolean" },
             "24gb": { "type": "boolean" },
             "32gb": { "type": "boolean" },
-            "48gb_plus": { "type": "boolean" }
+            "48gb": { "type": "boolean" },
+            "64gb": { "type": "boolean" },
+            "96gb": { "type": "boolean" },
+            "128gb": { "type": "boolean" }
           }
         },
-        "mobile": {
+        "mac_studio": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["practical", "note"],
+          "required": ["32gb", "64gb", "96gb", "128gb", "192gb", "256gb", "512gb"],
           "properties": {
-            "practical": { "type": "boolean" },
+            "32gb": { "type": "boolean" },
+            "64gb": { "type": "boolean" },
+            "96gb": { "type": "boolean" },
+            "128gb": { "type": "boolean" },
+            "192gb": { "type": "boolean" },
+            "256gb": { "type": "boolean" },
+            "512gb": { "type": "boolean" }
+          }
+        },
+        "dgx": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["640gb", "1128gb", "1440gb"],
+          "properties": {
+            "640gb": { "type": "boolean" },
+            "1128gb": { "type": "boolean" },
+            "1440gb": { "type": "boolean" }
+          }
+        },
+        "android": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["8gb", "12gb", "16gb", "24gb", "note"],
+          "properties": {
+            "8gb": { "type": "boolean" },
+            "12gb": { "type": "boolean" },
+            "16gb": { "type": "boolean" },
+            "24gb": { "type": "boolean" },
+            "note": { "type": "string" }
+          }
+        },
+        "iphone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["8gb", "12gb", "note"],
+          "properties": {
+            "8gb": { "type": "boolean" },
+            "12gb": { "type": "boolean" },
             "note": { "type": "string" }
           }
         }

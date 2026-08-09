@@ -59,7 +59,7 @@ def test_synthesize_quants_large_no_fp16():
     assert qs[0]["estimated_vram_gb"] == 29.88
 
 
-# ---- hardware flags (task 2.4) ----
+# ---- hardware flags (task 2.4 / expand-hardware-tiers 1.3) ----
 def test_flags_8b_fits_8gb():
     qs = estimator.synthesize_quants(8.03)
     hw = estimator.hardware_flags(8.03, qs)
@@ -67,20 +67,34 @@ def test_flags_8b_fits_8gb():
     assert hw["nvidia"]["48gb"] is True
     assert hw["amd"]["8gb"] is True
     assert hw["macbook"]["16gb"] is True    # usable 12.5; 6.21+1.5=7.71 <= 12.5
-    assert hw["macbook"]["48gb_plus"] is True
-    assert hw["mobile"]["practical"] is False  # 8.03B > 4B
+    assert hw["macbook"]["128gb"] is True
+    assert hw["mac_studio"]["32gb"] is True  # usable 28.5
+    assert hw["mac_studio"]["512gb"] is True
+    assert hw["dgx"]["640gb"] is True
+    # 8.03B > 4B -> phones fail-closed despite fitting memory-wise
+    assert hw["android"]["8gb"] is False
+    assert hw["iphone"]["8gb"] is False
+    assert "Too large" in hw["android"]["note"]
 
 
-def test_flags_70b_only_48gb():
+def test_flags_70b_macbook_64_plus():
     qs = estimator.synthesize_quants(72.71)
     hw = estimator.hardware_flags(72.71, qs)
     assert hw["nvidia"] == {"8gb": False, "12gb": False, "16gb": False,
                             "24gb": False, "48gb": True}
     assert hw["amd"] == {"8gb": False, "12gb": False, "16gb": False, "24gb": False}
     # est = 44.5 + 1.3 = 45.8; fit: 45.8 + 1.5 = 47.3
-    # MacBook usable = tier - 3.5: 48 - 3.5 = 44.5 -> 47.3 > 44.5, so even 48+ misses
-    assert hw["macbook"]["48gb_plus"] is False
-    assert hw["macbook"]["32gb"] is False
+    # MacBook usable = tier - 3.5: 48-3.5=44.5 -> 47.3 > 44.5 grey; 64-3.5=60.5 green
+    assert hw["macbook"]["48gb"] is False
+    assert hw["macbook"]["64gb"] is True
+    assert hw["macbook"]["96gb"] is True
+    assert hw["macbook"]["128gb"] is True
+    assert hw["mac_studio"]["32gb"] is False
+    assert hw["mac_studio"]["64gb"] is True
+    assert hw["mac_studio"]["512gb"] is True
+    assert hw["dgx"] == {"640gb": True, "1128gb": True, "1440gb": True}
+    assert hw["android"]["8gb"] is False
+    assert hw["iphone"]["12gb"] is False
 
 
 def test_flags_mixtral_moe_contract_math():
@@ -92,25 +106,52 @@ def test_flags_mixtral_moe_contract_math():
     assert hw["nvidia"]["24gb"] is False
     assert hw["nvidia"]["48gb"] is True
     assert hw["macbook"]["32gb"] is False
-    assert hw["macbook"]["48gb_plus"] is True
-    assert hw["mobile"]["practical"] is False
+    assert hw["macbook"]["48gb"] is True
+    assert hw["mac_studio"]["32gb"] is False
+    assert hw["mac_studio"]["64gb"] is True
+    assert hw["dgx"]["640gb"] is True
+    assert hw["android"]["8gb"] is False
 
 
-def test_flags_extreme_moe_no_consumer_support():
+def test_flags_extreme_moe_studio_512_fits():
+    # 671B x 0.612 = 410.65 -> est 411.95; fit 413.45
+    # Mac Studio 512 usable = 508.5 -> FITS; MacBook 128 usable 124.5 -> no
     qs = estimator.synthesize_quants(671.0)  # DeepSeek-R1 class
     hw = estimator.hardware_flags(671.0, qs)
     assert all(not v for v in hw["nvidia"].values())
     assert all(not v for v in hw["amd"].values())
     assert all(not v for v in hw["macbook"].values())
-    assert hw["mobile"]["practical"] is False
-    assert "multi-GPU" in hw["mobile"]["note"]
+    assert hw["mac_studio"]["128gb"] is False
+    assert hw["mac_studio"]["256gb"] is False
+    assert hw["mac_studio"]["512gb"] is True
+    assert hw["dgx"] == {"640gb": True, "1128gb": True, "1440gb": True}
+    assert hw["android"]["8gb"] is False
+    assert "Too large" in hw["android"]["note"]
 
 
-def test_flags_mobile_practical_for_small():
+def test_flags_1t_moe_dgx_only():
+    # 1000B x 0.612 = 612 -> est 613.3; fit 614.8
+    # Studio 512 usable 508.5 -> misses; DGX 640 -> fits: DGX-only case
+    qs = estimator.synthesize_quants(1000.0)
+    hw = estimator.hardware_flags(1000.0, qs)
+    assert all(not v for v in hw["nvidia"].values())
+    assert all(not v for v in hw["macbook"].values())
+    assert all(not v for v in hw["mac_studio"].values())
+    assert hw["dgx"] == {"640gb": True, "1128gb": True, "1440gb": True}
+    assert hw["android"]["8gb"] is False
+    assert "DGX" in hw["android"]["note"]
+    assert hw["iphone"]["note"] == hw["android"]["note"]
+
+
+def test_flags_phone_practical_for_small():
     qs = estimator.synthesize_quants(3.82)
     hw = estimator.hardware_flags(3.82, qs)
-    assert hw["mobile"]["practical"] is True
-    assert "phone-class" in hw["mobile"]["note"]
+    assert hw["android"]["8gb"] is True
+    assert hw["android"]["24gb"] is True
+    assert hw["iphone"]["8gb"] is True
+    assert hw["iphone"]["12gb"] is True
+    assert "Practical" in hw["android"]["note"]
+    assert "Android" in hw["android"]["note"]
 
 
 def test_flags_anchored_on_first_quant():
@@ -120,6 +161,8 @@ def test_flags_anchored_on_first_quant():
     est0 = qs[0]["estimated_vram_gb"]
     assert hw["nvidia"]["8gb"] == estimator.fits(est0, 8)
     assert hw["macbook"]["16gb"] == estimator.fits(est0, 16 - estimator.MAC_SYSTEM_GB)
+    assert hw["mac_studio"]["64gb"] == estimator.fits(est0, 64 - estimator.MAC_SYSTEM_GB)
+    assert hw["dgx"]["640gb"] == estimator.fits(est0, 640)
 
 
 def test_hardware_flags_requires_quants():

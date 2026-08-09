@@ -28,7 +28,11 @@ MOBILE_MAX_PARAMS_B = 4.0   # practical only for <=4B models
 
 NVIDIA_TIERS = [8, 12, 16, 24, 48]
 AMD_TIERS = [8, 12, 16, 24]
-MACBOOK_TIERS = [16, 24, 32, 48]  # 48 displayed as "48+"
+MACBOOK_TIERS = [16, 24, 32, 48, 64, 96, 128]        # M5 Max tops out at 128 GB (verified, Apple)
+MAC_STUDIO_TIERS = [32, 64, 96, 128, 192, 256, 512]  # M4 Max 64, M3 Ultra up to 512 GB
+DGX_TIERS = [640, 1128, 1440]                        # DGX A100/H100 640, H200 1128, B200 1440 GB total
+ANDROID_TIERS = [8, 12, 16, 24]                      # e.g. Galaxy S25 Ultra 12/16 GB
+IPHONE_TIERS = [8, 12]                               # iPhone 17 Pro 12 GB
 
 DEFAULT_NOTES = {
     "Q4_K_M": "Recommended balanced quant",
@@ -49,8 +53,6 @@ QUANT_FALLBACK_NOTES = {
     "IQ4_XS": "Experimental 4-bit, compact",
     "IQ4_NL": "Experimental 4-bit, near-lossless",
 }
-
-_MAC_KEYS = {"16": "16gb", "24": "24gb", "32": "32gb", "48": "48gb_plus"}
 
 
 def quant_size_gb(params_b: float, bytes_per_param: float) -> float:
@@ -100,8 +102,28 @@ def _tier_flags(est: float, tiers: list[int]) -> dict[str, bool]:
     return {f"{t}gb": fits(est, t) for t in tiers}
 
 
-def _mac_flags(est: float) -> dict[str, bool]:
-    return {_MAC_KEYS[str(t)]: fits(est, t - MAC_SYSTEM_GB) for t in MACBOOK_TIERS}
+def _mac_flags(est: float, tiers: list[int]) -> dict[str, bool]:
+    """macOS unified-memory tiers: usable = tier - system reserve."""
+    return {f"{t}gb": fits(est, t - MAC_SYSTEM_GB) for t in tiers}
+
+
+def _phone_flags(params_b: float, est: float, min_est: float,
+                 tiers: list[int], platform: str) -> dict:
+    """Phone category: gated by the practicality rule (<=4B and fits an 8 GB budget).
+
+    If not practical, every tier is false (fail-closed) and the note explains why.
+    """
+    practical = params_b <= MOBILE_MAX_PARAMS_B and fits(min_est, MOBILE_BUDGET_GB)
+    if practical:
+        boxes = _tier_flags(est, tiers)
+        note = f"Practical at the smallest quant (~{min_est} GB est.) on flagship {platform}"
+    elif params_b > MOBILE_MAX_PARAMS_B:
+        boxes = {f"{t}gb": False for t in tiers}
+        note = f"Too large for {platform} phones"
+    else:
+        boxes = {f"{t}gb": False for t in tiers}
+        note = f"Smallest quant exceeds an {MOBILE_BUDGET_GB:.0f} GB phone budget"
+    return {"boxes": boxes, "note": note, "practical": practical}
 
 
 def hardware_flags(params_b: float, quants: list[dict]) -> dict:
@@ -113,27 +135,28 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
 
     nvidia = _tier_flags(est, NVIDIA_TIERS)
     amd = _tier_flags(est, AMD_TIERS)
-    macbook = _mac_flags(est)
+    macbook = _mac_flags(est, MACBOOK_TIERS)
+    mac_studio = _mac_flags(est, MAC_STUDIO_TIERS)
+    dgx = _tier_flags(est, DGX_TIERS)
+    android = _phone_flags(params_b, est, min_est, ANDROID_TIERS, "Android")
+    iphone = _phone_flags(params_b, est, min_est, IPHONE_TIERS, "iPhone")
 
-    mobile_practical = params_b <= MOBILE_MAX_PARAMS_B and fits(min_est, MOBILE_BUDGET_GB)
-    if mobile_practical:
-        min_q = min(quants, key=lambda q: q["estimated_vram_gb"])
-        mobile_note = (
-            f"Practical at {min_q['name']} (~{min_q['estimated_vram_gb']} GB est.)"
-            " on phone-class hardware"
-        )
-    elif params_b > MOBILE_MAX_PARAMS_B:
-        mobile_note = "Too large for phones"
-    else:
-        mobile_note = f"Smallest quant exceeds an {MOBILE_BUDGET_GB:.0f} GB mobile budget"
-
-    any_consumer = any(nvidia.values()) or any(macbook.values())
-    if not any_consumer:
-        mobile_note = "No consumer hardware fits; multi-GPU/server only"
+    consumer_any = (
+        any(nvidia.values()) or any(amd.values()) or any(macbook.values())
+        or any(mac_studio.values()) or any(android["boxes"].values())
+        or any(iphone["boxes"].values())
+    )
+    if not consumer_any:
+        note = "No consumer hardware fits; multi-GPU/server only (DGX-class)"
+        android["note"] = note
+        iphone["note"] = note
 
     return {
         "nvidia": nvidia,
         "amd": amd,
         "macbook": macbook,
-        "mobile": {"practical": mobile_practical, "note": mobile_note},
+        "mac_studio": mac_studio,
+        "dgx": dgx,
+        "android": {**android["boxes"], "note": android["note"]},
+        "iphone": {**iphone["boxes"], "note": iphone["note"]},
     }

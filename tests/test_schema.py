@@ -29,8 +29,15 @@ VALID = {
     "hardware": {
         "nvidia": {"8gb": True, "12gb": True, "16gb": True, "24gb": True, "48gb": True},
         "amd": {"8gb": True, "12gb": True, "16gb": True, "24gb": True},
-        "macbook": {"16gb": True, "24gb": True, "32gb": True, "48gb_plus": True},
-        "mobile": {"practical": False, "note": "Too large for phones"},
+        "macbook": {"16gb": True, "24gb": True, "32gb": True, "48gb": True,
+                    "64gb": True, "96gb": True, "128gb": True},
+        "mac_studio": {"32gb": True, "64gb": True, "96gb": True, "128gb": True,
+                       "192gb": True, "256gb": True, "512gb": True},
+        "dgx": {"640gb": True, "1128gb": True, "1440gb": True},
+        "android": {"8gb": True, "12gb": True, "16gb": True, "24gb": True,
+                    "note": "Practical at the smallest quant (~3.6 GB est.) on flagship Android"},
+        "iphone": {"8gb": True, "12gb": True,
+                   "note": "Practical at the smallest quant (~3.6 GB est.) on flagship iPhone"},
     },
     "last_updated": "2026-08-09",
 }
@@ -81,9 +88,21 @@ def test_quant_empty_list():
     assert validate(rec)
 
 
-def test_hardware_missing_mobile_note():
+def test_hardware_missing_android_note():
     rec = json.loads(json.dumps(VALID))
-    del rec["hardware"]["mobile"]["note"]
+    del rec["hardware"]["android"]["note"]
+    assert validate(rec)
+
+
+def test_mobile_category_rejected():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["mobile"] = {"practical": False, "note": "legacy"}
+    assert validate(rec)  # additionalProperties: false on hardware
+
+
+def test_macbook_48gb_plus_key_rejected():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["macbook"] = {k: True for k in ("16gb", "24gb", "32gb", "48gb_plus")}
     assert validate(rec)
 
 
