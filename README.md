@@ -14,6 +14,21 @@ Two parts, one JSON contract:
    Hardware boxes turn green/grey live from the selected quant
    (`est. VRAM + 1.5 GB ≤ device`; Macs use `unified − 3.5 GB`).
 
+## Features
+
+- **Trending HF crawl** — paginated trending feed, GGUF real quant sizes, checkpoint/resume
+- **Python-derived model profiles** — what each model is good for: best-for use cases,
+  strengths, weaknesses, limitations — every claim with provenance (README-mined,
+  benchmark-inferred, or curated)
+- **Metadata you can filter on** — license + commercial-friendly gate, context window,
+  model type (base/instruct/chat/reasoner/vision), languages, knowledge cutoff,
+  best-effort benchmarks (honest verified/unverified)
+- **Hardware-fit boxes** — NVIDIA / AMD / MacBook / Mac Studio / DGX / Android / iPhone,
+  recomputed live from the selected quant (est VRAM + 1.5 GB headroom vs tier)
+- **Search & filters** — name/author/use-case search, hardware-fit mode, type/use-case/
+  commercial filters, crawl freshness in the footer
+- **Zero-dependency frontend** — single file, works over http(s) and file://
+
 ## Quickstart
 
 ### Full gate (tests) — what CI runs
