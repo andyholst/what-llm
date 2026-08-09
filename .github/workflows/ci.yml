@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python deps
+        run: |
+          pip install --disable-pip-version-check -r requirements.txt
+          pip install --disable-pip-version-check -r requirements-dev.txt
+
+      - name: Install node deps (jsdom for frontend tests)
+        run: npm install
+
+      - name: Install OpenSpec CLI (local, gitignored)
+        run: |
+          npm install --no-save @fission-ai/openspec@latest
+          ./node_modules/.bin/openspec --version
+
+      - name: Python test suite (hermetic, no network)
+        run: python -m pytest tests/ -q -p no:cacheprovider
+
+      - name: Frontend tests (jsdom)
+        run: npm test
+
+      - name: Syntax-check emitted JS artifacts (if present)
+        run: |
+          if [ -f models/index.js ]; then node --check models/index.js; fi
+          if [ -f models/bundle.js ]; then node --check models/bundle.js; fi
+
+      - name: OpenSpec validate
+        run: ./node_modules/.bin/openspec validate add-hf-model-pipeline
+
+      - name: Makefile dry-run (nerdctl target syntax)
+        run: |
+          make -n build
+          make -n crawl LIMIT=5
+          make -n serve
+          make -n clean

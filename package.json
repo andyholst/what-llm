@@ -1,0 +1,12 @@
+{
+  "name": "what-llm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Frontend test harness for what-llm (vanilla index.html tested with jsdom)",
+  "scripts": {
+    "test": "node --test tests/frontend.test.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.0"
+  }
+}
