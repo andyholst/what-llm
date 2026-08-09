@@ -46,31 +46,31 @@ then in the CI pipeline for its PR.
 
 ## 3. Artifacts & sample data — ships as PR-3
 
-- [ ] 3.1 Add `artifacts.py`: per-model file writer (id `/` -> `__`), index.json, index.js, bundle.js; `</` -> `<\/` escaping in JS
-  - [ ] Verify: filenames sanitized; emitted JS round-trips through node
-- [ ] 3.2 Add `tests/test_artifacts.py` (sanitize, escaping round-trip, index/bundle shape, schema validity of written files)
-  - [ ] Verify: `pytest tests/test_artifacts.py -q` green
-- [ ] 3.3 Add `make_samples.py` + 8 hand-written samples (3.8B..671B: dense, MoE, GGUF-with-real-sizes, extreme MoE)
-  - [ ] Verify: `python make_samples.py` emits all files; verify() reports 0 problems
-- [ ] 3.4 Add samples invariant test: recompute(quants[0]) == hardware{} for every sample; node --check on index.js/bundle.js in CI
-  - [ ] Verify: invariant holds for all 8 samples; node --check passes
-- [ ] 3.5 Commit, push branch, PR-3, CI green, merge
-  - [ ] Verify: CI passes on PR-3; PR merged
+- [x] 3.1 Add `artifacts.py`: per-model file writer (id `/` -> `__`), index.json, index.js, bundle.js; `</` -> `<\/` escaping in JS
+  - [x] Verify: filenames sanitized; emitted JS round-trips through node
+- [x] 3.2 Add `tests/test_artifacts.py` (sanitize, escaping round-trip, index/bundle shape, schema validity of written files)
+  - [x] Verify: `pytest tests/test_artifacts.py -q` green
+- [x] 3.3 Add `make_samples.py` + 8 hand-written samples (3.8B..671B: dense, MoE, GGUF-with-real-sizes, extreme MoE)
+  - [x] Verify: `python make_samples.py` emits all files; verify() reports 0 problems
+- [x] 3.4 Add samples invariant test: recompute(quants[0]) == hardware{} for every sample; node --check on index.js/bundle.js in CI
+  - [x] Verify: invariant holds for all 8 samples; node --check passes
+- [x] 3.5 Commit, push branch, PR-3, CI green, merge
+  - [x] Verify: CI passes on PR-3; PR merged
 
 ## 4. Frontend — ships as PR-4
 
-- [ ] 4.1 `index.html` shell: loads models/index.js, search box + model cards (name, author, params, downloads, pipeline_tag)
-  - [ ] Verify: served page renders all sample cards; search filters (local + jsdom)
-- [ ] 4.2 Quant chips + hardware boxes (NVIDIA 8/12/16/24/48, AMD 8/12/16/24, MacBook 16/24/32/48+, mobile): green iff est + 1.5 <= tier; live recompute from SELECTED quant, stored hardware{} fallback
-  - [ ] Verify: switching quants flips boxes per fit rule (jsdom test)
-- [ ] 4.3 Details pane (facts, hf_url, quant notes) + mobile-responsive layout + hash deep-links (#m/<id>)
-  - [ ] Verify: details open via hash; no horizontal scroll at 400px
-- [ ] 4.4 file:// fallback: bundle.js injection on file://, server hint on missing bundle, no pushState
-  - [ ] Verify: jsdom (file:// semantics) renders details from bundle; fetch path also works served
-- [ ] 4.5 Add `tests/frontend.test.mjs` (jsdom: boot, search filter, card click, quant switch flips boxes, extreme MoE all grey, escaping safe)
-  - [ ] Verify: `npm test` green locally
-- [ ] 4.6 Commit, push branch, PR-4, CI green, merge
-  - [ ] Verify: CI passes on PR-4; PR merged
+- [x] 4.1 `index.html` shell: loads models/index.js, search box + model cards (name, author, params, downloads, pipeline_tag)
+  - [x] Verify: served page renders all sample cards; search filters (local + jsdom)
+- [x] 4.2 Quant chips + hardware boxes (NVIDIA 8/12/16/24/48, AMD 8/12/16/24, MacBook 16/24/32/48+, mobile): green iff est + 1.5 <= tier; live recompute from SELECTED quant, stored hardware{} fallback
+  - [x] Verify: switching quants flips boxes per fit rule (jsdom test)
+- [x] 4.3 Details pane (facts, hf_url, quant notes) + mobile-responsive layout + hash deep-links (#m/<id>)
+  - [x] Verify: details open via hash; no horizontal scroll at 400px
+- [x] 4.4 file:// fallback: bundle.js injection on file://, server hint on missing bundle, no pushState
+  - [x] Verify: jsdom (file:// semantics) renders details from bundle; fetch path also works served
+- [x] 4.5 Add `tests/frontend.test.mjs` (jsdom: boot, search filter, card click, quant switch flips boxes, extreme MoE all grey, escaping safe)
+  - [x] Verify: `npm test` green locally
+- [x] 4.6 Commit, push branch, PR-4, CI green, merge
+  - [x] Verify: CI passes on PR-4; PR merged
 
 ## 5. Crawler — ships as PR-5 (topological: 5.1 -> 5.13)
 

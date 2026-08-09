@@ -113,3 +113,5 @@ lessons and gaps as they are discovered.
 4. Frontend E2E: served page + `file://` open both work; quant switch flips boxes;
    extreme MoE shows no consumer support.
 5. `make -n` dry-run clean for build/crawl/serve/clean.
+- 2026-08-09 (CI): the py test container needs `make` installed — tests/test_makefile.py
+  runs `make -n` inside pytest.

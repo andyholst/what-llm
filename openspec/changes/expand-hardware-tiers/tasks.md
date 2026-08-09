@@ -13,16 +13,16 @@
 
 ## 2. Sample data — ships as PR-3
 
-- [ ] 2.1 Regenerate `models/` with v2 flags; ADD 6 more models (Llama-3.2-1B, Qwen2.5-3B, Gemma-3-4B, Qwen3-32B, Llama-3.1-70B, DeepSeek-V4-Flash-0731-GGUF 304B MoE with real quant sizes) — 14 total, exercising every category
-  - [ ] Verify: all schema-v2-valid; invariant recompute(quants[0]) == hardware{} holds; node --check on index.js/bundle.js
-- [ ] 2.2 Commit, push branch, PR-3, CI green, merge
-  - [ ] Verify: CI passes on PR-3; PR merged
+- [x] 2.1 Regenerate `models/` with v2 flags; ADD 6 more models (Llama-3.2-1B, Qwen2.5-3B, Gemma-3-4B, Qwen3-32B, Llama-3.1-70B, DeepSeek-V4-Flash-0731-GGUF 304B MoE with real quant sizes) — 14 total, exercising every category
+  - [x] Verify: all schema-v2-valid; invariant recompute(quants[0]) == hardware{} holds; node --check on index.js/bundle.js
+- [x] 2.2 Commit, push branch, PR-3, CI green, merge
+  - [x] Verify: CI passes on PR-3; PR merged
 
 ## 3. Frontend — ships as PR-4
 
-- [ ] 3.1 Update `index.html`: sections Mac Studio, DGX, Android, iPhone; MacBook 7 tiers; TIERS map with mac subtract for macbook + mac_studio; android/iphone boxes + note
-  - [ ] Verify: served page renders all sections for sample data; quant switch flips boxes
-- [ ] 3.2 Update `tests/frontend.test.mjs` (new sections, extreme MoE shows DGX-only, 70B shows MacBook 64+ green)
-  - [ ] Verify: `npm test` green locally and in CI
-- [ ] 3.3 Commit, push branch, PR-4, CI green, merge
-  - [ ] Verify: CI passes on PR-4; PR merged
+- [x] 3.1 Update `index.html`: sections Mac Studio, DGX, Android, iPhone; MacBook 7 tiers; TIERS map with mac subtract for macbook + mac_studio; android/iphone boxes + note
+  - [x] Verify: served page renders all sections for sample data; quant switch flips boxes
+- [x] 3.2 Update `tests/frontend.test.mjs` (new sections, extreme MoE shows DGX-only, 70B shows MacBook 64+ green)
+  - [x] Verify: `npm test` green locally and in CI
+- [x] 3.3 Commit, push branch, PR-4, CI green, merge
+  - [x] Verify: CI passes on PR-4; PR merged
