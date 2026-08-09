@@ -122,7 +122,7 @@ then in the CI pipeline for its PR.
 
 ## 7. Final verification & close-out
 
-- [ ] 7.1 Browser E2E (local): served page + file:// open; search; quant switch flips boxes; extreme MoE shows no consumer support; mobile layout
+- [x] 7.1 Browser E2E (local): served page + file:// open; search; quant switch flips boxes; extreme MoE shows no consumer support; mobile layout
   - [x] Verify: real browser DOM checks pass for crawler-generated data
 - [x] 7.2 Re-run all gates: openspec validate, full pytest, npm test, node --check, make -n
   - [x] Verify: all green; `openspec status --change` shows 4/4 artifacts

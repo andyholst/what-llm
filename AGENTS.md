@@ -108,6 +108,10 @@ lessons and gaps as they are discovered.
   expand=config&expand=safetensors&expand=gguf&expand=tags.
 - 2026-08-09 (CI): the py test container needs `make` installed — tests/test_makefile.py
   runs `make -n` inside pytest.
+- 2026-08-09 (decision): models/ is committed as the deterministic SAMPLE dataset —
+  tests couple to it (searches like "DeepSeek-R1"). The real crawl output is verified
+  live (`python -m whatllm.crawl_models --out /tmp/...`) and regenerated on the host
+  with `make crawl`; never overwrite models/ with real data and commit it blindly.
 
 ## Verification gate (before ticking any task)
 
