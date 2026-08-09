@@ -9,3 +9,5 @@ data/
 build/
 dist/
 .pytest_cache/
+test-results/
+playwright-report/

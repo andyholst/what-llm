@@ -9,55 +9,13 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  compose-gate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Python deps
-        run: |
-          pip install --disable-pip-version-check -r requirements.txt
-          pip install --disable-pip-version-check -r requirements-dev.txt
-          pip install --disable-pip-version-check -e .
-
-      - name: Install node deps (jsdom for frontend tests)
-        run: npm install
-
-      - name: Install OpenSpec CLI (local, gitignored)
-        run: |
-          npm install --no-save @fission-ai/openspec@latest
-          ./node_modules/.bin/openspec --version
-
-      - name: Python test suite (hermetic, no network)
-        run: python -m pytest tests/ -q -p no:cacheprovider
-
-      - name: Frontend tests (jsdom) — skipped until the frontend PR lands
-        run: |
-          if [ -f tests/frontend.test.mjs ]; then npm test; else echo "frontend tests not present yet — skipped"; fi
-
-      - name: Syntax-check emitted JS artifacts (if present)
-        run: |
-          if [ -f models/index.js ]; then node --check models/index.js; fi
-          if [ -f models/bundle.js ]; then node --check models/bundle.js; fi
-
-      - name: OpenSpec validate (change dir present since PR-1)
-        run: ./node_modules/.bin/openspec validate add-hf-model-pipeline
-
-      - name: Makefile dry-run (nerdctl target syntax) — skipped until the containerization PR lands
-        run: |
-          if [ -f Makefile ]; then
-            make -n build
-            make -n crawl LIMIT=5
-            make -n serve
-            make -n clean
-          else
-            echo "Makefile not present yet — skipped"
-          fi
+      # The pipeline delegates entirely to the Makefile: `make ci` builds and runs the
+      # py (pytest) and node (jsdom + Playwright + openspec validate) containers from
+      # docker-compose-files/ci.yaml. The same command works locally — one gate, everywhere.
+      - name: Run the containerized gate (make ci)
+        run: make ci
