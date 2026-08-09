@@ -35,9 +35,9 @@ pre-create the network).
 ### Crawl + serve (nerdctl, host-side)
 
 ```sh
-make build            # nerdctl build -t what-llm:latest .
+make build            # nerdctl build the crawler image
 make crawl LIMIT=150  # run the crawler; per-model JSON lands in ./models (bind-mounted)
-make serve            # http://localhost:8000 serving ./models
+make serve            # http://localhost:8000 — serves the frontend (index.html + models/)
 ```
 
 The crawler runs inside the container with `--network host`, `--user $(id -u):$(id -g)`,
