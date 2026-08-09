@@ -74,3 +74,24 @@ test('file:// opens without a blank screen (bundle path)', async ({ page }) => {
     await expect(page.locator('#d-detail')).toBeVisible();
   }
 });
+
+test('wizard produces picks on the served page', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#wizard summary').click();
+  await page.selectOption('#w-hwcat', 'nvidia');
+  await page.selectOption('#w-hwtier', '12');
+  await page.selectOption('#w-use', 'coding');
+  await page.click('#w-go');
+  await expect(page.locator('#w-results .wrow').first()).toBeVisible();
+});
+
+test('side-by-side compare opens a table', async ({ page }) => {
+  await page.goto('/');
+  const boxes = page.locator('.cmpbox');
+  await expect(boxes.first()).toBeVisible();
+  await boxes.nth(0).check();
+  await boxes.nth(1).check();
+  await page.click('#cmp-go');
+  await expect(page.locator('#cmp-panel')).toBeVisible();
+  await expect(page.locator('#cmp-table-body tr').first()).toBeVisible();
+});

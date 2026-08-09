@@ -212,3 +212,58 @@ test('freshness line shows crawl age from MODELS_META', async () => {
     'footer shows crawl age');
   dom.window.close();
 });
+
+test('wizard picks fit the chosen hardware and use case', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  change(window, '#w-hwcat', 'nvidia');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '12');
+  change(window, '#w-use', 'coding');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  const rows = [...window.document.querySelectorAll('#w-results .wrow')];
+  assert.ok(rows.length <= 5, 'top 5 picks max');
+  rows.forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m, 'pick maps to a model: ' + name);
+    assert.ok(m.est_vram_gb + 1.5 <= 12, name + ' fits NVIDIA 12GB');
+    assert.ok((m.best_for || []).includes('coding'), name + ' is good for coding');
+  });
+  dom.window.close();
+});
+
+test('wizard with no match explains why', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  change(window, '#w-hwcat', 'iphone');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '8');
+  change(window, '#w-use', 'agentic');   // no sample model is agentic -> guaranteed no match
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelector('#w-results').textContent.length > 0);
+  assert.ok(window.document.querySelector('#w-results').textContent.includes('No models fit'),
+    'no-match guidance shown');
+  dom.window.close();
+});
+
+test('side-by-side compare table shows selected models', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  assert.ok(window.document.querySelectorAll('.cmpbox').length >= 2, 'compare checkboxes on cards');
+  click(window, '.cmpbox', 0);
+  click(window, '.cmpbox', 1);
+  assert.equal(window.document.querySelector('#cmp-bar').style.display, 'block');
+  click(window, '#cmp-go');
+  await waitFor(() => window.document.querySelector('#cmp-panel').style.display === 'block');
+  const body = window.document.querySelector('#cmp-table-body');
+  const firstRow = body.querySelector('tr');
+  assert.equal(firstRow.querySelector('th').textContent, 'Model');
+  assert.equal(firstRow.querySelectorAll('td').length, 2, 'two models compared');
+  assert.ok(body.querySelectorAll('tr').length >= 5, 'multiple comparison rows');
+  dom.window.close();
+});
