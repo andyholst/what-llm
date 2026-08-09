@@ -78,5 +78,63 @@
       "note": "Too large for iPhone phones"
     }
   },
+  "profile": {
+    "summary": "Mistral: efficient chat with strong reasoning-per-parameter; Apache/MIT friendly.",
+    "best_for": [
+      "chat",
+      "reasoning",
+      "rag"
+    ],
+    "strengths": [
+      "Supports up to 32,768 tokens of context",
+      "Strong quality per parameter",
+      "Permissive licenses on many variants"
+    ],
+    "weaknesses": [
+      "Smaller context on some variants (8k)",
+      "Sliding-window attention quirks on some tools"
+    ],
+    "limitations": [],
+    "provenance": [
+      {
+        "claim": "Supports up to 32,768 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Strong quality per parameter",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Permissive licenses on many variants",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Smaller context on some variants (8k)",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Sliding-window attention quirks on some tools",
+        "source": "curated",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "license": "apache-2.0",
+  "commercial_ok": true,
+  "context_window": 32768,
+  "model_type": "instruct",
+  "languages": [
+    "en",
+    "fr",
+    "de",
+    "es",
+    "it"
+  ],
+  "knowledge_cutoff": "2023-12",
+  "benchmarks": [],
   "last_updated": "2026-08-09"
 }
