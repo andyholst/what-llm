@@ -30,4 +30,5 @@ services:
         (if [ -f models/bundle.js ]; then node --check models/bundle.js; fi) &&
         ./node_modules/.bin/openspec validate add-hf-model-pipeline &&
         ./node_modules/.bin/openspec validate expand-hardware-tiers &&
-        ./node_modules/.bin/openspec validate add-compose-ci-harness
+        ./node_modules/.bin/openspec validate add-compose-ci-harness &&
+        ./node_modules/.bin/openspec validate extend-model-metadata
