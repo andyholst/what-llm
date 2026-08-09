@@ -126,5 +126,5 @@ then in the CI pipeline for its PR.
   - [x] Verify: real browser DOM checks pass for crawler-generated data
 - [x] 7.2 Re-run all gates: openspec validate, full pytest, npm test, node --check, make -n
   - [x] Verify: all green; `openspec status --change` shows 4/4 artifacts
-- [ ] 7.3 Tick every box `- [x]` (only those CI/local-verified), commit, push main, report
+- [x] 7.3 Tick every box `- [x]` (only those CI/local-verified), commit, push main, report
   - [x] Verify: zero `- [x]` remain; remote main up to date; repo page reachable
