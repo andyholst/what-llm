@@ -1,0 +1,45 @@
+# Deploy the what-llm static site to GitHub Pages on every merge to main.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage static site
+        run: |
+          mkdir -p _site
+          cp -r index.html models LICENSE README.md _site/
+          echo "{\"sha\":\"$GITHUB_SHA\",\"ref\":\"$GITHUB_REF_NAME\",\"deployed_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+            > _site/deploy_info.json
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
