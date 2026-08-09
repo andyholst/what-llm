@@ -210,6 +210,15 @@ def build_samples() -> list[dict]:
         model_type="reasoner", languages=["en", "zh"], knowledge_cutoff="2025-07",
         tags=["gguf", "reasoning"]))
 
+    # 15. non-commercial fine-tune (real-world: dolphin is CC-BY-NC) — the commercial
+    #     filter must exclude it
+    samples.append(_model(
+        "cognitivecomputations/dolphin-2.9-llama-3.1-8b", "Dolphin 2.9 Llama 3.1 8B", 8.03,
+        "dense", "text-generation", 540, 920_000, estimator.synthesize_quants(8.03),
+        license_name="cc-by-nc-4.0", commercial_ok=False, context_window=131072,
+        model_type="chat", languages=["en"], knowledge_cutoff="2023-12",
+        tags=["conversational", "license:cc-by-nc-4.0"]))
+
     return samples
 
 

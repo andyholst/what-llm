@@ -1,0 +1,122 @@
+{
+  "id": "cognitivecomputations/dolphin-2.9-llama-3.1-8b",
+  "name": "Dolphin 2.9 Llama 3.1 8B",
+  "author": "cognitivecomputations",
+  "parameters_b": 8.03,
+  "architecture": "dense",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/cognitivecomputations/dolphin-2.9-llama-3.1-8b",
+  "trending_score": 540,
+  "downloads": 920000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 4.91,
+      "estimated_vram_gb": 6.21,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 5.73,
+      "estimated_vram_gb": 7.03,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 8.54,
+      "estimated_vram_gb": 9.84,
+      "notes": "Near-lossless, needs more VRAM"
+    },
+    {
+      "name": "FP16",
+      "size_gb": 16.06,
+      "estimated_vram_gb": 17.36,
+      "notes": "Full precision, most VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true,
+      "48gb": true
+    },
+    "amd": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true
+    },
+    "macbook": {
+      "16gb": true,
+      "24gb": true,
+      "32gb": true,
+      "48gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true
+    },
+    "mac_studio": {
+      "32gb": true,
+      "64gb": true,
+      "96gb": true,
+      "128gb": true,
+      "192gb": true,
+      "256gb": true,
+      "512gb": true
+    },
+    "dgx": {
+      "640gb": true,
+      "1128gb": true,
+      "1440gb": true
+    },
+    "android": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "note": "Too large for Android phones"
+    },
+    "iphone": {
+      "8gb": false,
+      "12gb": false,
+      "note": "Too large for iPhone phones"
+    }
+  },
+  "profile": {
+    "summary": "cognitivecomputations/dolphin-2.9-llama-3.1-8b: see strengths/weaknesses for what it is good at and where it falls short.",
+    "best_for": [
+      "chat"
+    ],
+    "strengths": [
+      "Supports up to 131,072 tokens of context"
+    ],
+    "weaknesses": [],
+    "limitations": [
+      "Non-commercial license (cc-by-nc-4.0) — check before shipping"
+    ],
+    "provenance": [
+      {
+        "claim": "Supports up to 131,072 tokens of context",
+        "source": "config",
+        "confidence": "high"
+      },
+      {
+        "claim": "Non-commercial license (cc-by-nc-4.0) — check before shipping",
+        "source": "tags",
+        "confidence": "high"
+      }
+    ]
+  },
+  "license": "cc-by-nc-4.0",
+  "commercial_ok": false,
+  "context_window": 131072,
+  "model_type": "chat",
+  "languages": [
+    "en"
+  ],
+  "knowledge_cutoff": "2023-12",
+  "benchmarks": [],
+  "last_updated": "2026-08-09"
+}

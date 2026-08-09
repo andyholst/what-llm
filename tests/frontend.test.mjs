@@ -61,7 +61,7 @@ test('boot renders all sample cards with count', async () => {
   const { window } = dom;
   await waitFor(() => cardCount(window) > 0);
   assert.equal(cardCount(window), window.MODELS_INDEX.length);
-  assert.match(window.document.querySelector('#count').textContent, /14 models/);
+  assert.match(window.document.querySelector('#count').textContent, /15 models/);
   dom.window.close();
 });
 
@@ -151,5 +151,64 @@ test('file:// bundle path renders details without fetch (jsdom has no fetch on f
   click(window, '.card');
   await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
   assert.ok(window.document.querySelector('#d-name').textContent.length > 0);
+  dom.window.close();
+});
+
+test('profile panel renders strengths/weaknesses/limitations with provenance', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  click(window, '.card');
+  await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
+  assert.ok(window.document.querySelector('#d-summary').textContent.length > 0, 'summary present');
+  assert.ok(window.document.querySelectorAll('#d-strengths li').length > 0, 'strengths listed');
+  const li = window.document.querySelector('#d-strengths li');
+  assert.ok((li.title || '').includes('source:'), 'claim carries provenance in title');
+  assert.ok(window.document.querySelector('#d-meta').textContent.includes('License'), 'license badge');
+  dom.window.close();
+});
+
+test('commercial-only filter excludes non-commercial models', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  const before = cardCount(window);
+  check(window, '#fcommercial', true);
+  await waitFor(() => cardCount(window) < before);
+  assert.ok(cardCount(window) > 0);
+  const names = [...window.document.querySelectorAll('.card .nm')].map(e => e.textContent);
+  assert.ok(!names.some(n => n.includes('Dolphin')), 'dolphin (CC-BY-NC) filtered out');
+  dom.window.close();
+});
+
+test('model-type filter narrows to reasoner models', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  change(window, '#ftype', 'reasoner');
+  await waitFor(() => cardCount(window) > 0);
+  const rows = [...window.document.querySelectorAll('.card')];
+  assert.ok(rows.length >= 1 && rows.length < 15, 'subset shown');
+  dom.window.close();
+});
+
+test('use-case filter matches best_for chips', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  const opts = [...window.document.querySelector('#fuse').options].map(o => o.value);
+  assert.ok(opts.includes('coding'), 'use-case options populated: ' + opts.join(','));
+  change(window, '#fuse', 'coding');
+  await waitFor(() => cardCount(window) > 0);
+  dom.window.close();
+});
+
+test('freshness line shows crawl age from MODELS_META', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  assert.ok(window.MODELS_META && window.MODELS_META.crawled_at, 'meta present');
+  assert.ok(window.document.querySelector('#d-updated').textContent.includes('crawled'),
+    'footer shows crawl age');
   dom.window.close();
 });
