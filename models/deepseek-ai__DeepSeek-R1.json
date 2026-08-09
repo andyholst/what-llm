@@ -1,0 +1,57 @@
+{
+  "id": "deepseek-ai/DeepSeek-R1",
+  "name": "DeepSeek R1",
+  "author": "deepseek-ai",
+  "parameters_b": 671.0,
+  "architecture": "moe",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/deepseek-ai/DeepSeek-R1",
+  "trending_score": 860,
+  "downloads": 6500000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 410.65,
+      "estimated_vram_gb": 411.95,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 478.42,
+      "estimated_vram_gb": 479.72,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 713.27,
+      "estimated_vram_gb": 714.57,
+      "notes": "Near-lossless, needs more VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "48gb": false
+    },
+    "amd": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false
+    },
+    "macbook": {
+      "16gb": false,
+      "24gb": false,
+      "32gb": false,
+      "48gb_plus": false
+    },
+    "mobile": {
+      "practical": false,
+      "note": "No consumer hardware fits; multi-GPU/server only"
+    }
+  },
+  "last_updated": "2026-08-09"
+}

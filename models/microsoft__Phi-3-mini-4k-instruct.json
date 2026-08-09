@@ -1,0 +1,63 @@
+{
+  "id": "microsoft/Phi-3-mini-4k-instruct",
+  "name": "Phi-3 Mini 4K Instruct",
+  "author": "microsoft",
+  "parameters_b": 3.82,
+  "architecture": "dense",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
+  "trending_score": 4120,
+  "downloads": 1450000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 2.34,
+      "estimated_vram_gb": 3.64,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 2.72,
+      "estimated_vram_gb": 4.02,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 4.06,
+      "estimated_vram_gb": 5.36,
+      "notes": "Near-lossless, needs more VRAM"
+    },
+    {
+      "name": "FP16",
+      "size_gb": 7.64,
+      "estimated_vram_gb": 8.94,
+      "notes": "Full precision, most VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true,
+      "48gb": true
+    },
+    "amd": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true
+    },
+    "macbook": {
+      "16gb": true,
+      "24gb": true,
+      "32gb": true,
+      "48gb_plus": true
+    },
+    "mobile": {
+      "practical": true,
+      "note": "Practical at Q4_K_M (~3.64 GB est.) on phone-class hardware"
+    }
+  },
+  "last_updated": "2026-08-09"
+}

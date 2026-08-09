@@ -46,11 +46,14 @@ lessons and gaps as they are discovered.
   NEVER claim a nerdctl build/run succeeded when it did not execute.
 - **Git/GitHub**: repo `andyholst/what-llm` (public, Apache-2.0). Identity: Asimov Agent
   <support@docondee.com>. Token lives in gitignored `.env` (`GH_TOKEN`); never commit it
-  and never print it. Push with `git -c http.extraheader="AUTHORIZATION: Bearer $GH_TOKEN"
-  push origin main`. No squash/rebase/force-push of pushed history.
+  and never print it. Push with the credential-helper pattern (`username=x-access-token`,
+  `password=$GH_TOKEN`) — git-over-HTTPS needs Basic auth, Bearer only works for the REST
+  API. No squash/rebase/force-push of pushed history.
 - **Secrets**: `.env` is gitignored; do not paste tokens into issues/PRs/commits.
 - **models/ is committed** (data snapshot; regenerate with `make crawl`). `data/` is
   gitignored runtime state (checkpoint, logs, HF cache).
+- **Python layout**: all Python lives in `src/whatllm/` (package, `pip install -e .`);
+  the root keeps only config/docs/data directories — no loose .py files.
 
 ## Harness behavior (CI + iterative PRs)
 
@@ -82,8 +85,10 @@ lessons and gaps as they are discovered.
 - 2026-08-09 (skeptic-verified): MoE detection MUST use config.model_type /
   num_experts — `DeepseekV3ForCausalLM` contains no 'Moe'; arch substring alone is
   neither necessary nor sufficient.
-- 2026-08-09 (skeptic-verified): Mixtral 46.7B Q4_K_M est 30.1 GB fits 32 GB MacBook
-  (not "48GB only"); keep 2-decimal math for tier boundaries.
+- 2026-08-09 (skeptic-verified): Mixtral 46.7B Q4_K_M: with the CONTRACT formula
+  (est = size + 1.3, fit = est + 1.5 <= tier) est is 29.88, so 32 GB MacBook (usable
+  28.5) does NOT fit (31.38 > 28.5) — only 48 GB+ tiers fit. Keep 2-decimal math for
+  tier boundaries.
 - 2026-08-09 (skeptic): MacBook −3.5 GB and mobile ≤4 B are heuristics, not measured
   facts — labeled as such in the docs.
 

@@ -8,24 +8,24 @@ then in the CI pipeline for its PR.
 
 ## 1. Scaffolding — ships as PR-1
 
-- [ ] 1.1 Add `.gitignore` (data/, .venv/, node_modules/, __pycache__/, *.pyc, .env, .DS_Store); models/ stays TRACKED
-  - [ ] Verify: `git check-ignore .env data/` exits 0; models/ not ignored
-- [ ] 1.2 Add `LICENSE` (Apache License 2.0, canonical text)
-  - [ ] Verify: first line contains "Apache License"; file tracked
-- [ ] 1.3 Add `requirements.txt` (huggingface_hub, requests, jsonschema)
-  - [ ] Verify: `pip install -r requirements.txt` resolves in a clean venv
-- [ ] 1.4 Add `README.md` stub (purpose, status, license)
-  - [ ] Verify: renders; no placeholder TODOs left
-- [ ] 1.5 OpenSpec: install @fission-ai/openspec (--no-save), `openspec init`, scaffold change dir via `openspec new change add-hf-model-pipeline` (CLI only)
-  - [ ] Verify: `openspec list` shows the change; `openspec validate add-hf-model-pipeline` is valid
-- [ ] 1.6 Add `package.json` (jsdom devDependency; `npm test` -> node --test)
-  - [ ] Verify: `npm install` resolves; `npm test` runs the (smoke) suite
-- [ ] 1.7 Add CI pipeline `.github/workflows/ci.yml` (ubuntu, python 3.12, node 20: pip install, pytest, npm test, node --check on models/*.js if present, make -n build/crawl/serve/clean, openspec validate)
-  - [ ] Verify: workflow file YAML-valid; a local run of each step succeeds in the venv
-- [ ] 1.8 Add `tests/test_smoke.py` (imports, schema path exists, estimator imports)
-  - [ ] Verify: `pytest tests/test_smoke.py -q` green locally
-- [ ] 1.9 Commit scaffold, push branch, open PR-1, wait for CI green, merge
-  - [ ] Verify: GitHub Actions run on PR-1 shows all checks passing; PR merged
+- [x] 1.1 Add `.gitignore` (data/, .venv/, node_modules/, __pycache__/, *.pyc, .env, .DS_Store); models/ stays TRACKED
+  - [x] Verify: `git check-ignore .env data/` exits 0; models/ not ignored
+- [x] 1.2 Add `LICENSE` (Apache License 2.0, canonical text)
+  - [x] Verify: first line contains "Apache License"; file tracked
+- [x] 1.3 Add `requirements.txt` (huggingface_hub, requests, jsonschema)
+  - [x] Verify: `pip install -r requirements.txt` resolves in a clean venv
+- [x] 1.4 Add `README.md` stub (purpose, status, license)
+  - [x] Verify: renders; no placeholder TODOs left
+- [x] 1.5 OpenSpec: install @fission-ai/openspec (--no-save), `openspec init`, scaffold change dir via `openspec new change add-hf-model-pipeline` (CLI only)
+  - [x] Verify: `openspec list` shows the change; `openspec validate add-hf-model-pipeline` is valid
+- [x] 1.6 Add `package.json` (jsdom devDependency; `npm test` -> node --test)
+  - [x] Verify: `npm install` resolves; `npm test` runs the (smoke) suite
+- [x] 1.7 Add CI pipeline `.github/workflows/ci.yml` (ubuntu, python 3.12, node 20: pip install, pytest, npm test, node --check on models/*.js if present, make -n build/crawl/serve/clean, openspec validate)
+  - [x] Verify: workflow file YAML-valid; a local run of each step succeeds in the venv
+- [x] 1.8 Add `tests/test_smoke.py` (imports, schema path exists, estimator imports)
+  - [x] Verify: `pytest tests/test_smoke.py -q` green locally
+- [x] 1.9 Commit scaffold, push branch, open PR-1, wait for CI green, merge
+  - [x] Verify: GitHub Actions run on PR-1 shows all checks passing; PR merged
 
 ## 2. Contract & estimator — ships as PR-2
 
@@ -36,10 +36,12 @@ then in the CI pipeline for its PR.
 - [ ] 2.3 Add `estimator.py` core: BYTES_PER_PARAM (Q4_K_M 0.612, Q5_K_M 0.713, Q8_0 1.063, FP16 2.0), quant_size_gb, est_vram_gb (size + 1.3), fits (est + 1.5 <= tier)
   - [ ] Verify: 8B Q4_K_M -> 4.9 GB size, 6.2 est, fits 8 GB (7.7 <= 8)
 - [ ] 2.4 Add `estimator.py` hardware flags: nvidia/amd/macbook tiers, MacBook unified - 3.5, mobile practical iff params_b <= 4.0 and min quant fits 8 GB, MoE uses TOTAL params
-  - [ ] Verify: Mixtral 46.7B Q4_K_M est 30.1 fits 32 GB MacBook but not 24 GB; extreme MoE all-false + note
+  - [ ] Verify: Mixtral 46.7B Q4_K_M est 29.88 -> 32 GB MacBook does NOT fit (31.38 > 28.5 usable), 48 GB+ tiers fit; extreme MoE all-false + note
 - [ ] 2.5 Add `tests/test_estimator.py` (formula values, tier boundaries with 2-decimal math, MacBook, mobile, MoE totals, DeepSeek-R1 all false)
   - [ ] Verify: `pytest tests/test_estimator.py -q` green
-- [ ] 2.6 Commit, push branch, PR-2, CI green, merge
+- [ ] 2.6 Add package layout: pyproject.toml + src/whatllm package (estimator, artifacts, make_samples); root keeps only config/docs/data dirs, no loose .py
+  - [ ] Verify: `pip install -e .` works; `python -m whatllm.make_samples` runs; `ls *.py` at root is empty
+- [ ] 2.7 Commit, push branch, PR-2, CI green, merge
   - [ ] Verify: CI passes on PR-2; PR merged
 
 ## 3. Artifacts & sample data — ships as PR-3
