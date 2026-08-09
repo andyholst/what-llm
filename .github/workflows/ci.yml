@@ -26,6 +26,7 @@ jobs:
         run: |
           pip install --disable-pip-version-check -r requirements.txt
           pip install --disable-pip-version-check -r requirements-dev.txt
+          pip install --disable-pip-version-check -e .
 
       - name: Install node deps (jsdom for frontend tests)
         run: npm install

@@ -1,0 +1,57 @@
+{
+  "id": "Qwen/Qwen2.5-14B-Instruct",
+  "name": "Qwen2.5 14B Instruct",
+  "author": "Qwen",
+  "parameters_b": 14.77,
+  "architecture": "dense",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct",
+  "trending_score": 1560,
+  "downloads": 5100000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 9.04,
+      "estimated_vram_gb": 10.34,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 10.53,
+      "estimated_vram_gb": 11.83,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 15.7,
+      "estimated_vram_gb": 17.0,
+      "notes": "Near-lossless, needs more VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": false,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true,
+      "48gb": true
+    },
+    "amd": {
+      "8gb": false,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true
+    },
+    "macbook": {
+      "16gb": true,
+      "24gb": true,
+      "32gb": true,
+      "48gb_plus": true
+    },
+    "mobile": {
+      "practical": false,
+      "note": "Too large for phones"
+    }
+  },
+  "last_updated": "2026-08-09"
+}

@@ -1,0 +1,63 @@
+{
+  "id": "Qwen/Qwen3-8B",
+  "name": "Qwen3 8B",
+  "author": "Qwen",
+  "parameters_b": 8.19,
+  "architecture": "dense",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/Qwen/Qwen3-8B",
+  "trending_score": 3890,
+  "downloads": 3200000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 5.01,
+      "estimated_vram_gb": 6.31,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 5.84,
+      "estimated_vram_gb": 7.14,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 8.71,
+      "estimated_vram_gb": 10.01,
+      "notes": "Near-lossless, needs more VRAM"
+    },
+    {
+      "name": "FP16",
+      "size_gb": 16.38,
+      "estimated_vram_gb": 17.68,
+      "notes": "Full precision, most VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true,
+      "48gb": true
+    },
+    "amd": {
+      "8gb": true,
+      "12gb": true,
+      "16gb": true,
+      "24gb": true
+    },
+    "macbook": {
+      "16gb": true,
+      "24gb": true,
+      "32gb": true,
+      "48gb_plus": true
+    },
+    "mobile": {
+      "practical": false,
+      "note": "Too large for phones"
+    }
+  },
+  "last_updated": "2026-08-09"
+}

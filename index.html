@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>what-llm — which model fits my hardware?</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f1f1f; --muted:#5f6368; --card:#f8f9fa; --border:#dadce0;
+    --ok-bg:#e6f4ea; --ok-fg:#137333; --off-bg:#f1f3f4; --off-fg:#9aa0a6;
+    --accent:#1a73e8; --chip:#e8f0fe;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#202124; --fg:#e8eaed; --muted:#9aa0a6; --card:#2a2b2e; --border:#3c4043;
+      --ok-bg:#1e3a24; --ok-fg:#81c995; --off-bg:#2a2b2e; --off-fg:#5f6368;
+      --accent:#8ab4f8; --chip:#1e2a3a;
+    }
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.45;
+  }
+  .wrap{ max-width:860px; margin:0 auto; padding:16px; }
+  header{ margin-bottom:16px; }
+  h1{ font-size:1.35rem; margin:0 0 4px; }
+  .sub{ color:var(--muted); font-size:.85rem; }
+  .searchbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  #search{
+    flex:1; min-width:200px; min-height:44px; padding:10px 14px; font-size:1rem;
+    border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--fg);
+  }
+  #sort{
+    min-height:44px; padding:8px 10px; font-size:.9rem; border:1px solid var(--border);
+    border-radius:8px; background:var(--card); color:var(--fg);
+  }
+  .count{ color:var(--muted); font-size:.8rem; margin-bottom:8px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px; }
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
+    min-height:44px;
+  }
+  .card:hover{ border-color:var(--accent); }
+  .card.sel{ border-color:var(--accent); box-shadow:0 0 0 2px var(--chip); }
+  .card .nm{ font-weight:600; font-size:.95rem; }
+  .card .au{ color:var(--muted); font-size:.78rem; }
+  .card .meta{ color:var(--muted); font-size:.75rem; margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+  .tag{ display:inline-block; padding:1px 8px; border-radius:999px; background:var(--chip);
+        color:var(--accent); font-size:.7rem; margin-left:6px; vertical-align:middle; }
+  .pane{ display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:16px; }
+  .pane.open{ display:block; }
+  .pane h2{ font-size:1.05rem; margin:0 0 2px; }
+  .pane .au{ color:var(--muted); font-size:.8rem; }
+  .pane .facts{ display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:.8rem; margin:8px 0; }
+  .pane a{ color:var(--accent); }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  .chip{
+    min-height:44px; padding:8px 14px; border:1px solid var(--border); border-radius:999px;
+    background:var(--card); color:var(--fg); font-size:.85rem; cursor:pointer;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .chip.sel{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .hw{ margin-top:14px; }
+  .hw h3{ font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:14px 0 6px; }
+  .boxes{ display:flex; gap:8px; flex-wrap:wrap; }
+  .box{
+    min-width:64px; min-height:44px; padding:6px 12px; border-radius:8px; text-align:center;
+    font-size:.8rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .box.on{ background:var(--ok-bg); color:var(--ok-fg); }
+  .box.off{ background:var(--off-bg); color:var(--off-fg); }
+  .note{ color:var(--muted); font-size:.8rem; margin-top:4px; }
+  .err{ color:#c5221f; background:#fce8e6; border:1px solid #f5c6c0; border-radius:8px; padding:10px 14px; font-size:.9rem; }
+  .hint{ color:var(--muted); font-size:.8rem; }
+  .mono{ font-variant-numeric:tabular-nums; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  footer{ margin-top:24px; color:var(--muted); font-size:.72rem; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>what-llm ★</h1>
+    <div class="sub">Trending Hugging Face models — pick a model, then see which NVIDIA / AMD /
+      MacBook / mobile hardware it fits. <span class="hint">Green = fits (est. VRAM + 1.5 GB headroom ≤ device).</span></div>
+  </header>
+
+  <div class="searchbar">
+    <input id="search" type="search" placeholder="Search models, authors, tags…" enterkeyhint="search" autocomplete="off">
+    <select id="sort" aria-label="Sort models">
+      <option value="trending">Trending</option>
+      <option value="downloads">Downloads</option>
+      <option value="params">Parameters</option>
+    </select>
+  </div>
+  <div class="count" id="count"></div>
+
+  <div id="list" class="grid" role="list"></div>
+
+  <section id="pane" class="pane" aria-live="polite">
+    <h2 id="d-name"></h2>
+    <div class="au" id="d-author"></div>
+    <div class="facts" id="d-facts"></div>
+    <div class="hint" id="d-loading"></div>
+    <div class="err" id="d-error" style="display:none"></div>
+
+    <div id="d-detail" style="display:none">
+      <div class="chips" id="d-quants" role="group" aria-label="Quantizations"></div>
+      <div class="note" id="d-quant-note"></div>
+      <div class="hw">
+        <h3>NVIDIA GPUs</h3><div class="boxes" id="hw-nvidia"></div>
+        <h3>AMD GPUs</h3><div class="boxes" id="hw-amd"></div>
+        <h3>MacBook (unified memory)</h3><div class="boxes" id="hw-mac"></div>
+        <h3>Mobile</h3><div class="boxes" id="hw-mobile"></div>
+        <div class="note" id="d-mobile-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Generated by the what-llm HF crawler · data snapshot in <span class="mono">models/</span> ·
+    <span class="mono" id="d-updated"></span></footer>
+</div>
+
+<script src="models/index.js"></script>
+<script>
+"use strict";
+(function(){
+  // ---------- data loading ----------
+  // models/index.js (window.MODELS_INDEX) is loaded via <script> tag -> works on file://.
+  // Details: lazy fetch over http(s); on file:// we inject models/bundle.js if present.
+  var state = {
+    query: "", sort: "trending", models: [], selectedId: null, selectedQuant: 0,
+    cache: {}, bundleInjected: false, updated: ""
+  };
+
+  var TIERS = {
+    nvidia: [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"24gb",v:24},{k:"48gb",v:48}],
+    amd:    [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"24gb",v:24}],
+    mac:    [{k:"16gb",v:16},{k:"24gb",v:24},{k:"32gb",v:32},{k:"48gb_plus",v:48}]
+  };
+  var HEADROOM = 1.5, MAC_SYS = 3.5;
+
+  function $(s){ return document.querySelector(s); }
+  function fileOf(id){ return "models/" + id.replace(/\//g,"__") + ".json"; }
+  function fitsEst(est, tier, isMac){ return typeof est === "number" && isFinite(est) &&
+      (est + HEADROOM) <= (isMac ? tier - MAC_SYS : tier); }
+
+  function esc(s){ var d=document.createElement("div"); d.textContent = s; return d.textContent; }
+  function fmtN(n){ return Intl.NumberFormat(undefined,{notation:"compact",maximumFractionDigits:1}).format(n); }
+
+  // ---------- list ----------
+  function filterModels(){
+    var q = state.query.trim().toLowerCase();
+    var out = state.models.filter(function(m){
+      if(!q) return true;
+      return (m.name+" "+m.author+" "+m.pipeline_tag+" "+m.id).toLowerCase().indexOf(q) !== -1;
+    });
+    var sort = state.sort;
+    out.sort(function(a,b){
+      if(sort === "downloads") return b.downloads - a.downloads;
+      if(sort === "params") return b.parameters_b - a.parameters_b;
+      return b.trending_score - a.trending_score;
+    });
+    return out;
+  }
+
+  function renderList(){
+    var list = filterModels();
+    $("#count").textContent = list.length + " model" + (list.length===1?"":"s") +
+      (state.models.length ? " of " + state.models.length : "");
+    var grid = $("#list"); grid.textContent = "";
+    var i = 0;
+    function chunk(){
+      var end = Math.min(i + 50, list.length);
+      for(; i < end; i++){
+        var m = list[i];
+        var card = document.createElement("div");
+        card.className = "card" + (m.id === state.selectedId ? " sel" : "");
+        card.setAttribute("role","listitem");
+        card.dataset.id = m.id;
+        var nm = document.createElement("div"); nm.className = "nm";
+        nm.textContent = m.name;
+        var tag = document.createElement("span"); tag.className = "tag";
+        tag.textContent = (m.architecture === "moe" ? "MoE · " : "") + (m.pipeline_tag || "model");
+        nm.appendChild(tag);
+        card.appendChild(nm);
+        var au = document.createElement("div"); au.className = "au"; au.textContent = m.author;
+        card.appendChild(au);
+        var meta = document.createElement("div"); meta.className = "meta";
+        meta.textContent = fmtN(m.parameters_b) + "B params · " + fmtN(m.downloads) + " downloads";
+        card.appendChild(meta);
+        card.addEventListener("click", function(){ selectModel(m.id); });
+        grid.appendChild(card);
+      }
+      if(i < list.length) requestAnimationFrame(chunk);
+    }
+    chunk();
+  }
+
+  var debounce = function(fn, ms){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; };
+
+  // ---------- details ----------
+  function loadDetails(id){
+    if(state.cache[id]) return Promise.resolve(state.cache[id]);
+    if(location.protocol === "file:"){
+      if(!state.bundleInjected) return injectBundle().then(function(){ return state.cache[id]; });
+      return Promise.resolve(state.cache[id]);
+    }
+    return fetch(fileOf(id)).then(function(r){
+      if(!r.ok) throw new Error("missing");
+      return r.json();
+    }).then(function(m){ state.cache[id] = m; return m; });
+  }
+
+  function injectBundle(){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement("script");
+      s.src = "models/bundle.js";
+      s.onload = function(){
+        state.bundleInjected = true;
+        if(window.MODELS_BUNDLE){
+          Object.keys(window.MODELS_BUNDLE).forEach(function(k){ state.cache[k] = window.MODELS_BUNDLE[k]; });
+          if(state.cache[state.selectedId]){ renderDetails(state.selectedId); }
+        }
+        resolve();
+      };
+      s.onerror = function(){ reject(new Error("nobundle")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function selectModel(id){
+    state.selectedId = id;
+    state.selectedQuant = 0;
+    location.hash = "#m/" + encodeURIComponent(id);
+    var pane = $("#pane");
+    pane.classList.add("open");
+    $("#d-name").textContent = "";
+    $("#d-author").textContent = "";
+    $("#d-facts").textContent = "";
+    $("#d-detail").style.display = "none";
+    $("#d-loading").textContent = "Loading…";
+    $("#d-error").style.display = "none";
+    renderList();
+    pane.scrollIntoView({behavior:"smooth", block:"nearest"});
+    loadDetails(id).then(function(m){
+      $("#d-loading").textContent = "";
+      renderDetails(id);
+    }).catch(function(err){
+      $("#d-loading").textContent = "";
+      var e = $("#d-error");
+      e.style.display = "block";
+      e.textContent = (err && err.message === "nobundle")
+        ? 'Details not bundled for file:// — run `python3 -m http.server` in this folder and open http://localhost:8000 for full details.'
+        : 'Could not load details for this model.';
+    });
+  }
+
+  function hardwareView(m){
+    var q = m.quants[state.selectedQuant];
+    var est = q ? q.estimated_vram_gb : null;
+    var live = typeof est === "number" && isFinite(est);
+    return {
+      live: live, est: est,
+      recompute: function(tierKey, tierVal, isMac, storedFlags){
+        if(live) return fitsEst(est, tierVal, isMac);
+        return !!(storedFlags && storedFlags[tierKey]);
+      }
+    };
+  }
+
+  function renderDetails(id){
+    var m = state.cache[id];
+    if(!m) return;
+    $("#d-name").textContent = m.name + (m.architecture === "moe" ? " (MoE)" : "");
+    $("#d-author").textContent = m.author + " · " + m.id;
+    var facts = $("#d-facts"); facts.textContent = "";
+    var add = function(label, val){
+      var s = document.createElement("span");
+      s.textContent = label + ": " + val;
+      facts.appendChild(s);
+    };
+    add("Params", fmtN(m.parameters_b) + "B");
+    add("Downloads", fmtN(m.downloads));
+    add("Trending score", fmtN(m.trending_score));
+    add("Updated", m.last_updated);
+    var link = document.createElement("a");
+    link.href = m.hf_url; link.target = "_blank"; link.rel = "noopener";
+    link.textContent = "View on HF ↗";
+    facts.appendChild(link);
+
+    var chips = $("#d-quants"); chips.textContent = "";
+    m.quants.forEach(function(q, i){
+      var b = document.createElement("button");
+      b.className = "chip" + (i === state.selectedQuant ? " sel" : "");
+      b.dataset.q = String(i);
+      b.textContent = q.name + " · " + q.size_gb + " GB";
+      b.title = q.notes;
+      b.addEventListener("click", function(){
+        state.selectedQuant = i;
+        renderDetails(id);
+      });
+      chips.appendChild(b);
+    });
+
+    var hw = hardwareView(m);
+    var sel = m.quants[state.selectedQuant];
+    $("#d-quant-note").textContent = sel
+      ? "Selected quant: " + sel.name + " — ~" + sel.size_gb + " GB file, ~" + sel.estimated_vram_gb +
+        " GB estimated VRAM" + (hw.live ? "" : " (no estimate — showing recommended flags)") + ". " + sel.notes
+      : "";
+
+    var boxesEl = {
+      nvidia: $("#hw-nvidia"), amd: $("#hw-amd"), mac: $("#hw-mac")
+    };
+    var stored = m.hardware;
+    ["nvidia","amd","mac"].forEach(function(sec){
+      var el = boxesEl[sec]; el.textContent = "";
+      TIERS[sec].forEach(function(t){
+        var storedFlags = stored[sec] || {};
+        var on = hw.recompute(t.k, t.v, sec === "mac", storedFlags);
+        var box = document.createElement("div");
+        box.className = "box " + (on ? "on" : "off");
+        box.textContent = t.k.replace("gb"," GB").replace("48gb_plus","48+ GB") + " " + (on ? "✓" : "–");
+        box.title = on ? "Fits" : "Does not fit";
+        el.appendChild(box);
+      });
+    });
+
+    // mobile
+    var mob = $("#hw-mobile"); mob.textContent = "";
+    var mobStored = stored.mobile || {};
+    var practical;
+    if(hw.live){
+      practical = m.parameters_b <= 4.0 && m.quants.every(function(q){ return fitsEst(q.estimated_vram_gb, 8, false); });
+    } else {
+      practical = !!mobStored.practical;
+    }
+    var mb = document.createElement("div");
+    mb.className = "box " + (practical ? "on" : "off");
+    mb.textContent = (practical ? "Practical ✓" : "Not practical –");
+    mob.appendChild(mb);
+    var mobNote;
+    if(hw.live && m.parameters_b > 4.0) mobNote = "Too large for phones";
+    else mobNote = mobStored.note || "No mobile support data";
+    $("#d-mobile-note").textContent = mobNote;
+
+    $("#d-detail").style.display = "block";
+    state.updated = m.last_updated;
+    $("#d-updated").textContent = "last updated " + state.updated;
+  }
+
+  // ---------- boot ----------
+  function boot(){
+    if(!window.MODELS_INDEX){
+      var list = $("#list");
+      list.textContent = "";
+      var e = document.createElement("div"); e.className = "err";
+      e.textContent = "models/index.js not found — run the crawler (`make crawl`) or `python make_samples.py` first.";
+      list.appendChild(e);
+      return;
+    }
+    state.models = window.MODELS_INDEX;
+    var updated = null;
+    state.models.forEach(function(m){ if(!updated || m.last_updated > updated) updated = m.last_updated; });
+    if(updated) { state.updated = updated; $("#d-updated").textContent = "last updated " + updated; }
+    renderList();
+    var h = location.hash.match(/^#m\/(.+)$/);
+    if(h){
+      try { selectModel(decodeURIComponent(h[1])); } catch(_){}
+    }
+  }
+
+  $("#search").addEventListener("input", debounce(function(){
+    state.query = $("#search").value;
+    renderList();
+  }, 150));
+  $("#sort").addEventListener("change", function(){ state.sort = $("#sort").value; renderList(); });
+  window.addEventListener("hashchange", function(){
+    var h = location.hash.match(/^#m\/(.+)$/);
+    if(h){ try { selectModel(decodeURIComponent(h[1])); } catch(_){} }
+  });
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

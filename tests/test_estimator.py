@@ -6,7 +6,7 @@ Q5_K_M 0.713, Q8_0 1.063, FP16 2.0); real GGUF file sizes from the tree endpoint
 """
 from __future__ import annotations
 
-import estimator
+from whatllm import estimator
 
 
 # ---- bytes/param table (task 2.3) ----

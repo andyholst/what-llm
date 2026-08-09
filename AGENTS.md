@@ -46,11 +46,14 @@ lessons and gaps as they are discovered.
   NEVER claim a nerdctl build/run succeeded when it did not execute.
 - **Git/GitHub**: repo `andyholst/what-llm` (public, Apache-2.0). Identity: Asimov Agent
   <support@docondee.com>. Token lives in gitignored `.env` (`GH_TOKEN`); never commit it
-  and never print it. Push with `git -c http.extraheader="AUTHORIZATION: Bearer $GH_TOKEN"
-  push origin main`. No squash/rebase/force-push of pushed history.
+  and never print it. Push with the credential-helper pattern (`username=x-access-token`,
+  `password=$GH_TOKEN`) — git-over-HTTPS needs Basic auth, Bearer only works for the REST
+  API. No squash/rebase/force-push of pushed history.
 - **Secrets**: `.env` is gitignored; do not paste tokens into issues/PRs/commits.
 - **models/ is committed** (data snapshot; regenerate with `make crawl`). `data/` is
   gitignored runtime state (checkpoint, logs, HF cache).
+- **Python layout**: all Python lives in `src/whatllm/` (package, `pip install -e .`);
+  the root keeps only config/docs/data directories — no loose .py files.
 
 ## Harness behavior (CI + iterative PRs)
 

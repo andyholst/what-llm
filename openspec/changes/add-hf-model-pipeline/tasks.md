@@ -36,10 +36,12 @@ then in the CI pipeline for its PR.
 - [ ] 2.3 Add `estimator.py` core: BYTES_PER_PARAM (Q4_K_M 0.612, Q5_K_M 0.713, Q8_0 1.063, FP16 2.0), quant_size_gb, est_vram_gb (size + 1.3), fits (est + 1.5 <= tier)
   - [ ] Verify: 8B Q4_K_M -> 4.9 GB size, 6.2 est, fits 8 GB (7.7 <= 8)
 - [ ] 2.4 Add `estimator.py` hardware flags: nvidia/amd/macbook tiers, MacBook unified - 3.5, mobile practical iff params_b <= 4.0 and min quant fits 8 GB, MoE uses TOTAL params
-  - [ ] Verify: Mixtral 46.7B Q4_K_M est 30.1 fits 32 GB MacBook but not 24 GB; extreme MoE all-false + note
+  - [ ] Verify: Mixtral 46.7B Q4_K_M est 29.88 -> 32 GB MacBook does NOT fit (31.38 > 28.5 usable), 48 GB+ tiers fit; extreme MoE all-false + note
 - [ ] 2.5 Add `tests/test_estimator.py` (formula values, tier boundaries with 2-decimal math, MacBook, mobile, MoE totals, DeepSeek-R1 all false)
   - [ ] Verify: `pytest tests/test_estimator.py -q` green
-- [ ] 2.6 Commit, push branch, PR-2, CI green, merge
+- [ ] 2.6 Add package layout: pyproject.toml + src/whatllm package (estimator, artifacts, make_samples); root keeps only config/docs/data dirs, no loose .py
+  - [ ] Verify: `pip install -e .` works; `python -m whatllm.make_samples` runs; `ls *.py` at root is empty
+- [ ] 2.7 Commit, push branch, PR-2, CI green, merge
   - [ ] Verify: CI passes on PR-2; PR merged
 
 ## 3. Artifacts & sample data — ships as PR-3

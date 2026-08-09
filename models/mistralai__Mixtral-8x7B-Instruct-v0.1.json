@@ -1,0 +1,57 @@
+{
+  "id": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+  "name": "Mixtral 8x7B Instruct",
+  "author": "mistralai",
+  "parameters_b": 46.7,
+  "architecture": "moe",
+  "pipeline_tag": "text-generation",
+  "hf_url": "https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1",
+  "trending_score": 1120,
+  "downloads": 4300000,
+  "quants": [
+    {
+      "name": "Q4_K_M",
+      "size_gb": 28.58,
+      "estimated_vram_gb": 29.88,
+      "notes": "Recommended balanced quant"
+    },
+    {
+      "name": "Q5_K_M",
+      "size_gb": 33.3,
+      "estimated_vram_gb": 34.6,
+      "notes": "Higher quality, slightly larger"
+    },
+    {
+      "name": "Q8_0",
+      "size_gb": 49.64,
+      "estimated_vram_gb": 50.94,
+      "notes": "Near-lossless, needs more VRAM"
+    }
+  ],
+  "hardware": {
+    "nvidia": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false,
+      "48gb": true
+    },
+    "amd": {
+      "8gb": false,
+      "12gb": false,
+      "16gb": false,
+      "24gb": false
+    },
+    "macbook": {
+      "16gb": false,
+      "24gb": false,
+      "32gb": false,
+      "48gb_plus": true
+    },
+    "mobile": {
+      "practical": false,
+      "note": "Too large for phones"
+    }
+  },
+  "last_updated": "2026-08-09"
+}
