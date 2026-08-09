@@ -103,6 +103,11 @@ lessons and gaps as they are discovered.
   split GGUF files end `-00001-of-00002.gguf` — quant regex must allow both.
 - 2026-08-09 (crawler): DeepSeek-V3 has NO 'moe' in model_type/architectures — MoE
   detection must also check expert config keys (n_routed_experts, num_experts, ...).
+- 2026-08-09 (live E2E): the LIST endpoint DROPS pipeline_tag/tags when expand= is
+  passed — fetch the list PLAIN (for filtering) and details per-model with
+  expand=config&expand=safetensors&expand=gguf&expand=tags.
+- 2026-08-09 (CI): the py test container needs `make` installed — tests/test_makefile.py
+  runs `make -n` inside pytest.
 
 ## Verification gate (before ticking any task)
 
@@ -113,5 +118,3 @@ lessons and gaps as they are discovered.
 4. Frontend E2E: served page + `file://` open both work; quant switch flips boxes;
    extreme MoE shows no consumer support.
 5. `make -n` dry-run clean for build/crawl/serve/clean.
-- 2026-08-09 (CI): the py test container needs `make` installed — tests/test_makefile.py
-  runs `make -n` inside pytest.
