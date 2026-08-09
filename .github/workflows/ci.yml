@@ -38,15 +38,16 @@ jobs:
       - name: Python test suite (hermetic, no network)
         run: python -m pytest tests/ -q -p no:cacheprovider
 
-      - name: Frontend tests (jsdom)
-        run: npm test
+      - name: Frontend tests (jsdom) — skipped until the frontend PR lands
+        run: |
+          if [ -f tests/frontend.test.mjs ]; then npm test; else echo "frontend tests not present yet — skipped"; fi
 
       - name: Syntax-check emitted JS artifacts (if present)
         run: |
           if [ -f models/index.js ]; then node --check models/index.js; fi
           if [ -f models/bundle.js ]; then node --check models/bundle.js; fi
 
-      - name: OpenSpec validate
+      - name: OpenSpec validate (change dir present since PR-1)
         run: ./node_modules/.bin/openspec validate add-hf-model-pipeline
 
       - name: Makefile dry-run (nerdctl target syntax)
