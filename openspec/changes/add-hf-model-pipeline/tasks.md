@@ -8,24 +8,24 @@ then in the CI pipeline for its PR.
 
 ## 1. Scaffolding — ships as PR-1
 
-- [ ] 1.1 Add `.gitignore` (data/, .venv/, node_modules/, __pycache__/, *.pyc, .env, .DS_Store); models/ stays TRACKED
-  - [ ] Verify: `git check-ignore .env data/` exits 0; models/ not ignored
-- [ ] 1.2 Add `LICENSE` (Apache License 2.0, canonical text)
-  - [ ] Verify: first line contains "Apache License"; file tracked
-- [ ] 1.3 Add `requirements.txt` (huggingface_hub, requests, jsonschema)
-  - [ ] Verify: `pip install -r requirements.txt` resolves in a clean venv
-- [ ] 1.4 Add `README.md` stub (purpose, status, license)
-  - [ ] Verify: renders; no placeholder TODOs left
-- [ ] 1.5 OpenSpec: install @fission-ai/openspec (--no-save), `openspec init`, scaffold change dir via `openspec new change add-hf-model-pipeline` (CLI only)
-  - [ ] Verify: `openspec list` shows the change; `openspec validate add-hf-model-pipeline` is valid
-- [ ] 1.6 Add `package.json` (jsdom devDependency; `npm test` -> node --test)
-  - [ ] Verify: `npm install` resolves; `npm test` runs the (smoke) suite
-- [ ] 1.7 Add CI pipeline `.github/workflows/ci.yml` (ubuntu, python 3.12, node 20: pip install, pytest, npm test, node --check on models/*.js if present, make -n build/crawl/serve/clean, openspec validate)
-  - [ ] Verify: workflow file YAML-valid; a local run of each step succeeds in the venv
-- [ ] 1.8 Add `tests/test_smoke.py` (imports, schema path exists, estimator imports)
-  - [ ] Verify: `pytest tests/test_smoke.py -q` green locally
-- [ ] 1.9 Commit scaffold, push branch, open PR-1, wait for CI green, merge
-  - [ ] Verify: GitHub Actions run on PR-1 shows all checks passing; PR merged
+- [x] 1.1 Add `.gitignore` (data/, .venv/, node_modules/, __pycache__/, *.pyc, .env, .DS_Store); models/ stays TRACKED
+  - [x] Verify: `git check-ignore .env data/` exits 0; models/ not ignored
+- [x] 1.2 Add `LICENSE` (Apache License 2.0, canonical text)
+  - [x] Verify: first line contains "Apache License"; file tracked
+- [x] 1.3 Add `requirements.txt` (huggingface_hub, requests, jsonschema)
+  - [x] Verify: `pip install -r requirements.txt` resolves in a clean venv
+- [x] 1.4 Add `README.md` stub (purpose, status, license)
+  - [x] Verify: renders; no placeholder TODOs left
+- [x] 1.5 OpenSpec: install @fission-ai/openspec (--no-save), `openspec init`, scaffold change dir via `openspec new change add-hf-model-pipeline` (CLI only)
+  - [x] Verify: `openspec list` shows the change; `openspec validate add-hf-model-pipeline` is valid
+- [x] 1.6 Add `package.json` (jsdom devDependency; `npm test` -> node --test)
+  - [x] Verify: `npm install` resolves; `npm test` runs the (smoke) suite
+- [x] 1.7 Add CI pipeline `.github/workflows/ci.yml` (ubuntu, python 3.12, node 20: pip install, pytest, npm test, node --check on models/*.js if present, make -n build/crawl/serve/clean, openspec validate)
+  - [x] Verify: workflow file YAML-valid; a local run of each step succeeds in the venv
+- [x] 1.8 Add `tests/test_smoke.py` (imports, schema path exists, estimator imports)
+  - [x] Verify: `pytest tests/test_smoke.py -q` green locally
+- [x] 1.9 Commit scaffold, push branch, open PR-1, wait for CI green, merge
+  - [x] Verify: GitHub Actions run on PR-1 shows all checks passing; PR merged
 
 ## 2. Contract & estimator — ships as PR-2
 
