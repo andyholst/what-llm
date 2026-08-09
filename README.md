@@ -14,6 +14,15 @@ Two parts, one JSON contract:
    Hardware boxes turn green/grey live from the selected quant
    (`est. VRAM + 1.5 GB ≤ device`; Macs use `unified − 3.5 GB`).
 
+## Live demo (GitHub Pages)
+
+The site is auto-deployed to **https://andyholst.github.io/what-llm/** on every merge
+to `main` (see `.github/workflows/pages.yml`). The deployment carries
+`deploy_info.json` with the live commit sha + timestamp.
+
+Enablement (one-time, repo admin): **Settings → Pages → Source: GitHub Actions → Save**.
+After that, every PR merge re-deploys automatically; `workflow_dispatch` re-runs it manually.
+
 ## Features
 
 - **Trending HF crawl** — paginated trending feed, GGUF real quant sizes, checkpoint/resume
