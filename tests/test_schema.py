@@ -1,12 +1,16 @@
-"""Schema conformance tests for schemas/model.schema.json (task 2.2)."""
+"""Schema conformance tests for schemas/model.schema.json (task 2.2).
+
+Loads the schema directly (no import from artifacts.py — that module ships in PR-3).
+"""
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 from jsonschema import Draft7Validator
 
-from artifacts import load_schema
+SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "model.schema.json"
 
 VALID = {
     "id": "Qwen/Qwen3-8B",
@@ -33,7 +37,7 @@ VALID = {
 
 
 def validate(record) -> list[str]:
-    v = Draft7Validator(load_schema())
+    v = Draft7Validator(json.loads(SCHEMA_PATH.read_text(encoding="utf-8")))
     return [e.message for e in v.iter_errors(record)]
 
 
