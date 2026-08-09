@@ -99,6 +99,9 @@ lessons and gaps as they are discovered.
   tier boundaries.
 - 2026-08-09 (skeptic): MacBook −3.5 GB and mobile ≤4 B are heuristics, not measured
   facts — labeled as such in the docs.
+- 2026-08-09 (live E2E): the LIST endpoint DROPS pipeline_tag/tags when expand= is
+  passed — fetch the list PLAIN (for filtering) and details per-model with
+  expand=config&expand=safetensors&expand=gguf&expand=tags.
 
 ## Verification gate (before ticking any task)
 
