@@ -81,8 +81,11 @@ def test_flags_70b_macbook_64_plus():
     qs = estimator.synthesize_quants(72.71)
     hw = estimator.hardware_flags(72.71, qs)
     assert hw["nvidia"] == {"8gb": False, "12gb": False, "16gb": False,
-                            "24gb": False, "48gb": True}
-    assert hw["amd"] == {"8gb": False, "12gb": False, "16gb": False, "24gb": False}
+                            "20gb": False, "24gb": False, "32gb": False,
+                            "48gb": True, "96gb": True}  # 96 GB = RTX PRO 6000 Blackwell
+    assert hw["amd"] == {"8gb": False, "12gb": False, "16gb": False, "20gb": False,
+                         "24gb": False, "32gb": False,
+                         "48gb": True, "192gb": True}  # W7900 48 GB fits; MI300X too
     # est = 44.5 + 1.3 = 45.8; fit: 45.8 + 1.5 = 47.3
     # MacBook usable = tier - 3.5: 48-3.5=44.5 -> 47.3 > 44.5 grey; 64-3.5=60.5 green
     assert hw["macbook"]["48gb"] is False
@@ -189,3 +192,44 @@ def test_flags_deepseek_v4_flash_gguf_does_not_fit_macbook_48():
     # recompute independently (contract: est + 1.5 <= tier - 3.5 for Macs)
     assert est + 1.5 > 48 - 3.5
     assert est + 1.5 <= 96 - 3.5
+
+def test_flags_nvidia_32gb_5090_tier_exists():
+    """RTX 5090 = 32 GB (NVIDIA official) — the tier the user reported missing."""
+    qs = estimator.synthesize_quants(8.19)
+    hw = estimator.hardware_flags(8.19, qs)
+    assert hw["nvidia"]["32gb"] is True
+    qs2 = [{"name": "Q4_K_M", "size_gb": 26.0,
+            "estimated_vram_gb": estimator.est_vram_gb(26.0), "notes": ""}]
+    hw2 = estimator.hardware_flags(40.0, qs2)
+    assert hw2["nvidia"]["24gb"] is False and hw2["nvidia"]["32gb"] is True
+
+
+def test_flags_amd_20gb_7900xt_and_192gb_instinct():
+    qs = [{"name": "Q4_K_M", "size_gb": 17.0,
+           "estimated_vram_gb": estimator.est_vram_gb(17.0), "notes": ""}]
+    hw = estimator.hardware_flags(26.0, qs)
+    # est 18.3 -> 18.3+1.5 = 19.8 <= 20 fits 7900 XT tier, not 16 GB
+    assert hw["amd"]["16gb"] is False and hw["amd"]["20gb"] is True  # RX 7900 XT
+    qs2 = [{"name": "Q4_K_M", "size_gb": 150.0,
+            "estimated_vram_gb": estimator.est_vram_gb(150.0), "notes": ""}]
+    hw2 = estimator.hardware_flags(230.0, qs2)
+    assert hw2["amd"]["48gb"] is False and hw2["amd"]["192gb"] is True  # MI300X
+
+
+def test_flags_intel_arc_b580_fits_8b():
+    qs = estimator.synthesize_quants(8.19)
+    hw = estimator.hardware_flags(8.19, qs)
+    assert hw["intel_arc"]["12gb"] is True   # Arc B580 (SYCL/Vulkan)
+    assert hw["intel_arc"]["10gb"] is True and hw["intel_arc"]["8gb"] is True
+
+
+def test_flags_snapdragon_unified_memory_math():
+    """Snapdragon X is unified memory — usable = tier - 3.5 like macOS."""
+    qs = estimator.synthesize_quants(32.76)   # Qwen3-32B est ~21.4
+    hw = estimator.hardware_flags(32.76, qs)
+    assert hw["snapdragon"]["32gb"] is True   # 21.4+1.5 = 22.9 <= 28.5 (32-3.5)
+    qs_big = [{"name": "Q4_K_M", "size_gb": 55.0,
+               "estimated_vram_gb": estimator.est_vram_gb(55.0), "notes": ""}]
+    hw_big = estimator.hardware_flags(85.0, qs_big)
+    assert hw_big["snapdragon"]["32gb"] is False   # 57.8 > 28.5
+    assert hw_big["snapdragon"]["64gb"] is True    # 57.8 <= 60.5 (64-3.5)

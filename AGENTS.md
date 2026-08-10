@@ -123,6 +123,12 @@ lessons and gaps as they are discovered.
   touches user-facing surface (index.html, Makefile targets, .github/workflows,
   crawler flags, contract fields). GitHub Pages live demo section added; deploy
   info in `.github/workflows/pages.yml`.
+- **Issue-driven delivery (2026-08-10)**: a user-facing requirement enters as a GitHub
+  issue (evidence-backed: research/specs cited in the body) → its OpenSpec change is
+  created via the CLI → an implementation branch `feat/<name>` is cut from latest
+  main (synced per the merge discipline) → the PR references the issue with `Closes
+  #N` (ONE per line) → CI gate → merge → Pages auto-deploys. The token cannot edit
+  issues (403), so issue state changes happen ONLY through PR merge keywords.
 
 ## Verification gate (before ticking any task)
 

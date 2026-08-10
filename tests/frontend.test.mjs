@@ -94,14 +94,19 @@ test('selecting a model renders 7 hardware sections with correct box counts', as
   click(window, '.card');
   await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
   const h3s = [...window.document.querySelectorAll('#d-hw-sections h3')].map((h) => h.textContent);
-  assert.equal(h3s.length, 7);
-  assert.equal(window.document.querySelectorAll('#hw-nvidia .box').length, 5);
-  assert.equal(window.document.querySelectorAll('#hw-amd .box').length, 4);
+  assert.equal(h3s.length, 9);
+  assert.equal(window.document.querySelectorAll('#hw-nvidia .box').length, 8);
+  assert.equal(window.document.querySelectorAll('#hw-amd .box').length, 8);
+  assert.equal(window.document.querySelectorAll('#hw-intel_arc .box').length, 4);
+  assert.equal(window.document.querySelectorAll('#hw-snapdragon .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-macbook .box').length, 7);
   assert.equal(window.document.querySelectorAll('#hw-mac_studio .box').length, 7);
   assert.equal(window.document.querySelectorAll('#hw-dgx .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-android .box').length, 4);
   assert.equal(window.document.querySelectorAll('#hw-iphone .box').length, 2);
+  // backend criteria labels visible (CUDA / ROCm / SYCL+Vulkan / Metal ...)
+  assert.ok(h3s[0].includes('CUDA') && h3s[1].includes('ROCm') && h3s[2].includes('SYCL'),
+    'backend labels on section headers: ' + h3s.join(' | '));
   dom.window.close();
 });
 
@@ -300,6 +305,35 @@ test('MacBook 48GB wizard NEVER picks DeepSeek-V4-Flash GGUF (parity with Python
     const name = r.querySelector('a').textContent;
     const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
     assert.ok(m && m.est_vram_gb + 1.5 <= 48 - 3.5, name + ' actually fits MacBook 48GB');
+  });
+  dom.window.close();
+});
+
+test('Intel Arc + Snapdragon wizard parity (new sections use the same fit math)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  // Arc B580 12 GB: 8B-class picks must fit est + 1.5 <= 12
+  change(window, '#w-hwcat', 'intel_arc');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '12');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m && m.est_vram_gb + 1.5 <= 12, name + ' fits Arc 12GB');
+  });
+  // Snapdragon 64 GB uses unified-memory math: usable 60.5
+  change(window, '#w-hwcat', 'snapdragon');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '64');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m && m.est_vram_gb + 1.5 <= 64 - 3.5, name + ' fits Snapdragon 64GB unified');
   });
   dom.window.close();
 });

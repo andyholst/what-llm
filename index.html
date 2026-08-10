@@ -104,8 +104,10 @@
   <div class="searchbar" id="hwfilter">
     <select id="hwcat" aria-label="My hardware category">
       <option value="">Any hardware</option>
-      <option value="nvidia">NVIDIA GPU</option>
-      <option value="amd">AMD GPU</option>
+      <option value="nvidia">NVIDIA GPU (CUDA)</option>
+      <option value="amd">AMD GPU (ROCm)</option>
+      <option value="intel_arc">Intel Arc (SYCL/Vulkan)</option>
+      <option value="snapdragon">Snapdragon X (unified)</option>
       <option value="macbook">MacBook</option>
       <option value="mac_studio">Mac Studio</option>
       <option value="dgx">NVIDIA DGX</option>
@@ -132,8 +134,10 @@
     <div class="searchbar">
       <select id="w-hwcat" aria-label="Wizard hardware category">
         <option value="">My hardware…</option>
-        <option value="nvidia">NVIDIA GPU</option>
-        <option value="amd">AMD GPU</option>
+        <option value="nvidia">NVIDIA GPU (CUDA)</option>
+        <option value="amd">AMD GPU (ROCm)</option>
+        <option value="intel_arc">Intel Arc (SYCL/Vulkan)</option>
+        <option value="snapdragon">Snapdragon X (unified)</option>
         <option value="macbook">MacBook</option>
         <option value="mac_studio">Mac Studio</option>
         <option value="dgx">NVIDIA DGX</option>
@@ -207,8 +211,12 @@
   };
 
   var TIERS = {
-    nvidia: [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"24gb",v:24},{k:"48gb",v:48}],
-    amd:    [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"24gb",v:24}],
+    nvidia: [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"20gb",v:20},{k:"24gb",v:24},
+              {k:"32gb",v:32},{k:"48gb",v:48},{k:"96gb",v:96}],
+    amd:    [{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"20gb",v:20},{k:"24gb",v:24},
+              {k:"32gb",v:32},{k:"48gb",v:48},{k:"192gb",v:192}],
+    intel_arc: [{k:"8gb",v:8},{k:"10gb",v:10},{k:"12gb",v:12},{k:"16gb",v:16}],
+    snapdragon: [{k:"16gb",v:16},{k:"32gb",v:32},{k:"64gb",v:64}],
     macbook: [{k:"16gb",v:16},{k:"24gb",v:24},{k:"32gb",v:32},{k:"48gb",v:48},
               {k:"64gb",v:64},{k:"96gb",v:96},{k:"128gb",v:128}],
     mac_studio: [{k:"32gb",v:32},{k:"64gb",v:64},{k:"96gb",v:96},{k:"128gb",v:128},
@@ -218,15 +226,17 @@
     iphone: [{k:"8gb",v:8},{k:"12gb",v:12}]
   };
   var SECTIONS = [
-    {sec:"nvidia", label:"NVIDIA GPUs"},
-    {sec:"amd", label:"AMD GPUs"},
-    {sec:"macbook", label:"MacBook (unified memory)"},
-    {sec:"mac_studio", label:"Mac Studio (unified memory)"},
-    {sec:"dgx", label:"NVIDIA DGX (total GPU memory)"},
-    {sec:"android", label:"Android (Samsung-class)"},
-    {sec:"iphone", label:"iPhone"}
+    {sec:"nvidia", label:"NVIDIA GPUs — CUDA"},
+    {sec:"amd", label:"AMD GPUs — ROCm"},
+    {sec:"intel_arc", label:"Intel Arc — SYCL / Vulkan"},
+    {sec:"snapdragon", label:"Snapdragon X — CPU / Adreno Vulkan (unified)"},
+    {sec:"macbook", label:"MacBook — Metal (unified memory)"},
+    {sec:"mac_studio", label:"Mac Studio — Metal (unified memory)"},
+    {sec:"dgx", label:"NVIDIA DGX — CUDA (total GPU memory)"},
+    {sec:"android", label:"Android (CPU)"},
+    {sec:"iphone", label:"iPhone (CPU)"}
   ];
-  var MAC_CATS = {macbook: true, mac_studio: true};
+  var MAC_CATS = {macbook: true, mac_studio: true, snapdragon: true};
   var PHONE_CATS = {android: true, iphone: true};
   var HEADROOM = 1.5, MAC_SYS = 3.5;
 

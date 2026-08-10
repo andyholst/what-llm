@@ -27,8 +27,12 @@ VALID = {
          "notes": "Recommended balanced quant"},
     ],
     "hardware": {
-        "nvidia": {"8gb": True, "12gb": True, "16gb": True, "24gb": True, "48gb": True},
-        "amd": {"8gb": True, "12gb": True, "16gb": True, "24gb": True},
+        "nvidia": {"8gb": True, "12gb": True, "16gb": True, "20gb": True, "24gb": True,
+                   "32gb": True, "48gb": True, "96gb": True},
+        "amd": {"8gb": True, "12gb": True, "16gb": True, "20gb": True, "24gb": True,
+                "32gb": True, "48gb": True, "192gb": True},
+        "intel_arc": {"8gb": True, "10gb": True, "12gb": True, "16gb": True},
+        "snapdragon": {"16gb": True, "32gb": True, "64gb": True},
         "macbook": {"16gb": True, "24gb": True, "32gb": True, "48gb": True,
                     "64gb": True, "96gb": True, "128gb": True},
         "mac_studio": {"32gb": True, "64gb": True, "96gb": True, "128gb": True,
@@ -155,3 +159,20 @@ def test_date_pattern():
 def test_parameters_must_be_positive():
     rec = dict(VALID, parameters_b=0)
     assert validate(rec)
+
+def test_snapdragon_requires_all_unified_tiers():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["snapdragon"] = {"16gb": True, "32gb": True}  # missing 64gb
+    assert validate(rec)
+
+
+def test_intel_arc_rejects_unknown_tier():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["intel_arc"]["9gb"] = True  # no 9 GB Arc card exists
+    assert validate(rec)
+
+
+def test_nvidia_32gb_tier_valid():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["nvidia"]["32gb"] = True   # RTX 5090 tier key
+    assert validate(rec) == []

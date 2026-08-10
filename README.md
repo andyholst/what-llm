@@ -32,8 +32,11 @@ After that, every PR merge re-deploys automatically; `workflow_dispatch` re-runs
 - **Metadata you can filter on** — license + commercial-friendly gate, context window,
   model type (base/instruct/chat/reasoner/vision), languages, knowledge cutoff,
   best-effort benchmarks (honest verified/unverified)
-- **Hardware-fit boxes** — NVIDIA / AMD / MacBook / Mac Studio / DGX / Android / iPhone,
-  recomputed live from the selected quant (est VRAM + 1.5 GB headroom vs tier)
+- **Hardware-fit boxes** — NVIDIA (8–96 GB incl. RTX 5090 32 GB), AMD (8–192 GB
+  incl. RX 7900 XT 20 GB), Intel Arc (SYCL/Vulkan), Snapdragon X (unified memory),
+  MacBook / Mac Studio (Metal), DGX, Android, iPhone — recomputed live from the
+  selected quant (est VRAM + 1.5 GB headroom vs tier), with backend labels
+  (CUDA / ROCm / Metal / SYCL+Vulkan) on every section
 - **Search & filters** — name/author/use-case search, hardware-fit mode, type/use-case/
   commercial filters, crawl freshness in the footer
 - **Zero-dependency frontend** — single file, works over http(s) and file://
