@@ -6,91 +6,73 @@
 <title>what-llm — which model fits my hardware?</title>
 <link rel="stylesheet" href="vendor/bootstrap.min.css">
 <style>
-  :root{
-    --bg:#ffffff; --fg:#1f1f1f; --muted:#5f6368; --card:#f8f9fa; --border:#dadce0;
-    --ok-bg:#e6f4ea; --ok-fg:#137333; --off-bg:#f1f3f4; --off-fg:#9aa0a6;
-    --accent:#1a73e8; --chip:#e8f0fe;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#202124; --fg:#e8eaed; --muted:#9aa0a6; --card:#2a2b2e; --border:#3c4043;
-      --ok-bg:#1e3a24; --ok-fg:#81c995; --off-bg:#2a2b2e; --off-fg:#5f6368;
-      --accent:#8ab4f8; --chip:#1e2a3a;
-    }
-  }
-  *{ box-sizing:border-box; }
-  /* bootstrap .card replica for the wizard wrapper (model cards own the .card class) */
-  .bcard{ position:relative; display:flex; flex-direction:column; min-width:0;
-    border:1px solid var(--border); border-radius:.5rem; background:var(--card); }
-  body{
-    margin:0; background:var(--bg); color:var(--fg);
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.45;
-  }
-  .wrap{ max-width:860px; margin:0 auto; padding:16px; }
-  header{ margin-bottom:14px; }
-  h1{ font-size:1.35rem; margin:0 0 4px; }
-  .sub{ color:var(--muted); font-size:.85rem; }
-  .searchbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
-  #search{
-    flex:1; min-width:200px; min-height:44px; padding:10px 14px; font-size:1rem;
-    border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--fg);
-  }
-  select{
-    min-height:44px; padding:8px 10px; font-size:.9rem; border:1px solid var(--border);
-    border-radius:8px; background:var(--card); color:var(--fg);
-  }
+  /* what-llm overrides on Bootswatch Quartz — see docs/ux-restyle-spec.md */
+  .wrap{ max-width:1140px; margin:0 auto; padding:16px; }
+  header{ padding:1.5rem 0; margin-bottom:1rem; }
+  .sub{ color:var(--bs-secondary-color); font-size:.95rem; }
+  .searchbar{ margin-bottom:10px; }
+  #search{ min-height:44px; }
+  select{ min-height:44px; }
   select:disabled{ opacity:.5; }
-  label.fitbox{ display:flex; align-items:center; gap:6px; font-size:.85rem; color:var(--muted); min-height:44px; }
-  input[type=checkbox]{ width:18px; height:18px; accent-color:var(--accent); }
-  .count{ color:var(--muted); font-size:.8rem; margin-bottom:8px; }
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px; }
-  .card{
-    background:var(--card); border:1px solid var(--border); border-radius:10px;
-    padding:12px 14px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
-    min-height:44px; position:relative;
-  }
-  .card:hover{ border-color:var(--accent); }
-  .card.sel{ border-color:var(--accent); box-shadow:0 0 0 2px var(--chip); }
-  .card .nm{ font-weight:600; font-size:.95rem; }
-  .card .au{ color:var(--muted); font-size:.78rem; }
-  .card .meta{ color:var(--muted); font-size:.75rem; margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
-  .tag{ display:inline-block; padding:1px 8px; border-radius:999px; background:var(--chip);
-        color:var(--accent); font-size:.7rem; margin-left:6px; vertical-align:middle; }
-  .fitbadge{ display:inline-block; margin-top:8px; padding:2px 10px; border-radius:999px;
-             background:var(--ok-bg); color:var(--ok-fg); font-size:.72rem; font-weight:600; }
-  .pane{ display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:16px; }
+  label.fitbox{ user-select:none; min-height:44px; }
+  .count{ color:var(--bs-secondary-color); font-size:.8rem; margin-bottom:8px; }
+  .card{ cursor:pointer; transition:border-color .15s, box-shadow .15s; position:relative; }
+  .card:hover{ border-color:var(--bs-primary); }
+  .card.sel{ border-color:var(--bs-primary); box-shadow:0 0 0 3px rgba(143,148,251,.35); }
+  .card .cmpbox{ position:absolute; top:.75rem; right:.75rem; accent-color:var(--bs-primary); }
+  .card .nm{ font-weight:600; }
+  .card .au{ color:var(--bs-secondary-color); font-size:.8rem; }
+  .card .meta{ color:var(--bs-secondary-color); font-size:.78rem; margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+  .tag{ display:inline-block; padding:2px 9px; border-radius:999px; background:var(--bs-secondary-bg);
+        color:var(--bs-secondary-color); font-size:.7rem; margin-left:6px; vertical-align:middle; }
+  .fitbadge{ display:inline-block; margin-top:8px; padding:3px 10px; border-radius:999px;
+             background:var(--bs-success-bg-subtle); color:var(--bs-success-text-emphasis);
+             font-size:.72rem; font-weight:600; }
+  .bcard{ border:var(--bs-card-border-width) solid var(--bs-card-border-color);
+          border-radius:var(--bs-card-border-radius); background:var(--bs-card-bg); }
+  .bcard summary{ cursor:pointer; }
+  .bcard summary::-webkit-details-marker{ display:none; }
+  .bcard summary::after{ content:"▾"; float:right; transition:transform .15s; }
+  .bcard[open] summary::after{ transform:rotate(180deg); }
+  .wrow.selrec{ border-left:3px solid var(--bs-success); }
+  .pane{ display:none; background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color);
+         border-radius:var(--bs-border-radius-lg); padding:1.25rem; margin-top:1.25rem; }
   .pane.open{ display:block; }
-  .pane h2{ font-size:1.05rem; margin:0 0 2px; }
-  .pane .au{ color:var(--muted); font-size:.8rem; }
-  .pane .facts{ display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:.8rem; margin:8px 0; }
-  .pane a{ color:var(--accent); }
+  .pane h2{ font-size:1.2rem; margin:0 0 2px; }
+  .pane .au{ color:var(--bs-secondary-color); font-size:.8rem; }
+  .pane .facts{ display:flex; gap:14px; flex-wrap:wrap; color:var(--bs-secondary-color); font-size:.8rem; margin:8px 0; }
+  .pane a{ color:var(--bs-link-color); }
+  .profile h3{ font-size:1.1rem; margin-top:1rem; }
+  .pcols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+  .pcols h4{ font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--bs-secondary-color); }
   .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
-  .chip{
-    min-height:44px; padding:8px 14px; border:1px solid var(--border); border-radius:999px;
-    background:var(--card); color:var(--fg); font-size:.85rem; cursor:pointer;
-    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
-  }
-  .chip.sel{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .chip{ min-height:44px; padding:8px 14px; border:1px solid var(--bs-border-color); border-radius:999px;
+         background:var(--bs-tertiary-bg); color:var(--bs-body-color); font-size:.85rem; cursor:pointer;
+         touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .chip.sel{ background:var(--bs-primary); color:#fff; border-color:var(--bs-primary); }
   .hw{ margin-top:14px; }
-  .hw h3{ font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:14px 0 6px; }
+  .hw h3{ font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--bs-secondary-color); margin:14px 0 6px; }
   .boxes{ display:flex; gap:8px; flex-wrap:wrap; }
-  .box{
-    min-width:64px; min-height:44px; padding:6px 12px; border-radius:8px; text-align:center;
-    font-size:.8rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;
-  }
-  .box.on{ background:var(--ok-bg); color:var(--ok-fg); }
-  .box.off{ background:var(--off-bg); color:var(--off-fg); }
-  .note{ color:var(--muted); font-size:.8rem; margin-top:4px; }
-  .err{ color:#c5221f; background:#fce8e6; border:1px solid #f5c6c0; border-radius:8px; padding:10px 14px; font-size:.9rem; }
-  .hint{ color:var(--muted); font-size:.8rem; }
+  .box{ min-width:64px; min-height:44px; padding:6px 12px; border-radius:8px; text-align:center;
+        font-size:.8rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .box.on{ background:var(--bs-success-bg-subtle); color:var(--bs-success-text-emphasis); }
+  .box.off{ background:var(--bs-secondary-bg); color:var(--bs-secondary-color); }
+  .note{ color:var(--bs-secondary-color); font-size:.8rem; margin-top:4px; }
+  .err{ background:var(--bs-danger-bg-subtle); color:var(--bs-danger-text-emphasis);
+        border:1px solid var(--bs-danger-border-subtle); border-radius:8px; padding:10px 14px; font-size:.9rem; }
+  .hint{ color:var(--bs-secondary-color); font-size:.8rem; }
   .mono{ font-variant-numeric:tabular-nums; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-  footer{ margin-top:24px; color:var(--muted); font-size:.72rem; text-align:center; }
+  .cmptable{ width:100%; border-collapse:collapse; }
+  .cmptable th,.cmptable td{ padding:.5rem .75rem; border-bottom:1px solid var(--bs-border-color); text-align:left; }
+  .cmptable th{ font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--bs-secondary-color); }
+  #cmp-panel{ overflow-x:auto; }
+  footer{ margin-top:24px; color:var(--bs-secondary-color); font-size:.72rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="d-flex flex-wrap align-items-center gap-3 border-bottom pb-3 mb-4">
-    <h1 class="fw-bold mb-0">what-llm <span class="badge text-bg-primary">fit</span></h1>
+    <h1 class="display-6 fw-bold mb-0">what-llm <span class="badge text-bg-primary rounded-pill">fit</span></h1>
     <div class="sub text-body-secondary small">Trending Hugging Face models — search by name <em>or by your hardware</em>.
       Pick a model, then see which NVIDIA / AMD / Mac / DGX / phone it fits.
       <span class="hint">Green = fits (est. VRAM + 1.5 GB headroom ≤ device; Macs: unified − 3.5 GB).</span></div>
@@ -712,16 +694,6 @@
       res.textContent = "No models fit that combination — try a bigger device or a lower tier.";
       return;
     }
-    var best = recommendServers(top[0], cat)[0];
-    if(best){
-      var sum = document.createElement("div");
-      sum.id = "w-srv-summary";
-      sum.className = "alert alert-primary py-2 small";
-      sum.innerHTML = "🏃 Best server for " + esc(catLabel(cat)) + ": <b>" + esc(best.name) + "</b> " +
-        "<span class=\"badge text-bg-primary\">" + esc(best.backend) + "</span> — " + esc(best.reason) +
-        " &nbsp;<a href=\"" + SERVERS[best.name].url + "\" target=\"_blank\" rel=\"noopener\">" + esc(best.name) + " ↗</a>";
-      res.appendChild(sum);
-    }
     top.forEach(function(m){
       var row = document.createElement("div"); row.className = "wrow list-group-item";
       var a = document.createElement("a"); a.href = "#m/" + encodeURIComponent(m.id);
@@ -732,10 +704,16 @@
       why.textContent = (m.best_for || []).slice(0,3).join(" · ") +
         " · ~" + m.est_vram_gb + " GB est.";
       row.appendChild(why);
-      var rec0 = recommendServers(m, cat)[0];
-      if(rec0){
+      var recs = recommendServers(m, cat);
+      if(recs.length){
         var sug = document.createElement("div"); sug.className = "srv-sug mt-1 small";
-        sug.innerHTML = "🏃 Run with: <b>" + esc(rec0.name) + "</b> <span class=\"badge text-bg-primary\">" + esc(rec0.backend) + "</span> <span class=\"hint\">(" + esc(rec0.reason) + ")</span> <a href=\"" + SERVERS[rec0.name].url + "\" target=\"_blank\" rel=\"noopener\">" + esc(rec0.name) + " ↗</a>";
+        var top0 = recs[0];
+        var html = "🏃 Run with: <b>" + esc(top0.name) + "</b> <span class=\"badge text-bg-primary\">" + esc(top0.backend) + "</span> <span class=\"hint\">(" + esc(top0.reason) + ")</span>";
+        recs.forEach(function(r){
+          if(r === top0) return;
+          html += " &nbsp;<a class=\"badge text-bg-light border\" href=\"" + SERVERS[r.name].url + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.name) + " " + esc(r.backend) + " ↗</a>";
+        });
+        sug.innerHTML = html;
         row.appendChild(sug);
       }
       res.appendChild(row);
