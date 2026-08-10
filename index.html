@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>what-llm — which model fits my hardware?</title>
+<link rel="stylesheet" href="vendor/bootstrap.min.css">
 <style>
   :root{
     --bg:#ffffff; --fg:#1f1f1f; --muted:#5f6368; --card:#f8f9fa; --border:#dadce0;
@@ -18,6 +19,9 @@
     }
   }
   *{ box-sizing:border-box; }
+  /* bootstrap .card replica for the wizard wrapper (model cards own the .card class) */
+  .bcard{ position:relative; display:flex; flex-direction:column; min-width:0;
+    border:1px solid var(--border); border-radius:.5rem; background:var(--card); }
   body{
     margin:0; background:var(--bg); color:var(--fg);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.45;
@@ -85,24 +89,24 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>what-llm ★</h1>
-    <div class="sub">Trending Hugging Face models — search by name <em>or by your hardware</em>.
+  <header class="d-flex flex-wrap align-items-center gap-3 border-bottom pb-3 mb-4">
+    <h1 class="fw-bold mb-0">what-llm <span class="badge text-bg-primary">fit</span></h1>
+    <div class="sub text-body-secondary small">Trending Hugging Face models — search by name <em>or by your hardware</em>.
       Pick a model, then see which NVIDIA / AMD / Mac / DGX / phone it fits.
       <span class="hint">Green = fits (est. VRAM + 1.5 GB headroom ≤ device; Macs: unified − 3.5 GB).</span></div>
   </header>
 
-  <div class="searchbar">
-    <input id="search" type="search" placeholder="Search models, authors, tags…" enterkeyhint="search" autocomplete="off">
-    <select id="sort" aria-label="Sort models">
+  <div class="searchbar d-flex flex-wrap gap-2 align-items-center mb-3">
+    <input id="search" type="search" class="form-control" style="max-width:320px" placeholder="Search models, authors, tags…" enterkeyhint="search" autocomplete="off">
+    <select id="sort" class="form-select form-select-sm" style="width:auto" aria-label="Sort models">
       <option value="trending">Trending</option>
       <option value="downloads">Downloads</option>
       <option value="params">Parameters</option>
     </select>
   </div>
 
-  <div class="searchbar" id="hwfilter">
-    <select id="hwcat" aria-label="My hardware category">
+  <div class="searchbar d-flex flex-wrap gap-2 align-items-center mb-3" id="hwfilter">
+    <select id="hwcat" class="form-select form-select-sm" style="width:auto" aria-label="My hardware category">
       <option value="">Any hardware</option>
       <option value="nvidia">NVIDIA GPU (CUDA)</option>
       <option value="amd">AMD GPU (ROCm)</option>
@@ -114,11 +118,11 @@
       <option value="android">Android phone</option>
       <option value="iphone">iPhone</option>
     </select>
-    <select id="hwtier" aria-label="My device memory" disabled><option value="">VRAM / RAM…</option></select>
-    <label class="fitbox"><input type="checkbox" id="hwonly" disabled> only models that fit my hardware</label>
+    <select id="hwtier" class="form-select form-select-sm" style="width:auto" aria-label="My device memory" disabled><option value="">VRAM / RAM…</option></select>
+    <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="hwonly" disabled> only models that fit my hardware</label>
   </div>
-  <div class="searchbar" id="mfilter">
-    <select id="ftype" aria-label="Model type">
+  <div class="searchbar d-flex flex-wrap gap-2 align-items-center mb-3" id="mfilter">
+    <select id="ftype" class="form-select form-select-sm" style="width:auto" aria-label="Model type">
       <option value="">Any model type</option>
       <option value="base">Base</option>
       <option value="instruct">Instruct</option>
@@ -126,13 +130,14 @@
       <option value="reasoner">Reasoner</option>
       <option value="vision">Vision</option>
     </select>
-    <select id="fuse" aria-label="Use case"><option value="">Any use case</option></select>
-    <label class="fitbox"><input type="checkbox" id="fcommercial"> commercial-friendly only</label>
+    <select id="fuse" class="form-select form-select-sm" style="width:auto" aria-label="Use case"><option value="">Any use case</option></select>
+    <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="fcommercial"> commercial-friendly only</label>
   </div>
+  <div class="bcard mb-4">
   <details id="wizard">
-    <summary>Wizard — what should I run?</summary>
-    <div class="searchbar">
-      <select id="w-hwcat" aria-label="Wizard hardware category">
+    <summary class="card-header fw-semibold">Wizard — what should I run?</summary>
+    <div class="card-body searchbar d-flex flex-wrap gap-2 align-items-center">
+      <select id="w-hwcat" class="form-select form-select-sm" style="width:auto" aria-label="Wizard hardware category">
         <option value="">My hardware…</option>
         <option value="nvidia">NVIDIA GPU (CUDA)</option>
         <option value="amd">AMD GPU (ROCm)</option>
@@ -144,25 +149,26 @@
         <option value="android">Android phone</option>
         <option value="iphone">iPhone</option>
       </select>
-      <select id="w-hwtier" aria-label="Wizard device memory" disabled><option value="">VRAM / RAM…</option></select>
-      <select id="w-use" aria-label="Wizard use case"><option value="">What do I need?…</option></select>
-      <select id="w-server" aria-label="Wizard inference server"><option value="">Any inference server</option></select>
-      <label class="fitbox"><input type="checkbox" id="w-commercial"> commercial only</label>
-      <button type="button" id="w-go">Show my picks</button>
+      <select id="w-hwtier" class="form-select form-select-sm" style="width:auto" aria-label="Wizard device memory" disabled><option value="">VRAM / RAM…</option></select>
+      <select id="w-use" class="form-select form-select-sm" style="width:auto" aria-label="Wizard use case"><option value="">What do I need?…</option></select>
+      <select id="w-server" class="form-select form-select-sm" style="width:auto" aria-label="Wizard inference server"><option value="">Any inference server</option></select>
+      <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="w-commercial"> commercial only</label>
+      <button type="button" id="w-go" class="btn btn-primary btn-sm">Show my picks</button>
     </div>
-    <div id="w-results" class="wlist"></div>
+    <div id="w-results" class="wlist list-group list-group-flush"></div>
   </details>
-  <div id="cmp-bar" class="searchbar" style="display:none">
-    <span id="cmp-count"></span>
-    <button type="button" id="cmp-go">Compare</button>
-    <button type="button" id="cmp-clear">Clear</button>
   </div>
-  <div class="count" id="count"></div>
+  <div id="cmp-bar" class="searchbar d-flex flex-wrap gap-2 align-items-center mb-3" style="display:none">
+    <span id="cmp-count" class="badge text-bg-secondary"></span>
+    <button type="button" id="cmp-go" class="btn btn-outline-primary btn-sm">Compare</button>
+    <button type="button" id="cmp-clear" class="btn btn-outline-secondary btn-sm">Clear</button>
+  </div>
+  <div class="count text-body-secondary small mb-2" id="count"></div>
 
-  <div id="list" class="grid" role="list"></div>
+  <div id="list" class="grid row g-3" role="list"></div>
 
   <section id="pane" class="pane" aria-live="polite">
-    <h2 id="d-name"></h2>
+    <h2 id="d-name" class="fw-bold"></h2>
     <div class="au" id="d-author"></div>
     <div class="facts" id="d-facts"></div>
     <div class="hint" id="d-loading"></div>
@@ -189,7 +195,7 @@
         <div class="row">
           <select id="d-srvcat" aria-label="Hardware for server recommendation"></select>
         </div>
-        <div class="srv-rec" id="d-srv-rec" role="status"></div>
+        <div class="srv-rec alert alert-success py-2" id="d-srv-rec" role="status"></div>
         <div class="chips" id="d-servers" role="group" aria-label="Inference servers"></div>
       </div>
     </div>
@@ -201,7 +207,7 @@
     <div class="hint">Tick the checkboxes on cards to add models to the comparison.</div>
   </section>
 
-  <footer>Generated by the what-llm HF crawler · data snapshot in <span class="mono">models/</span> ·
+  <footer class="text-body-secondary small border-top mt-5 pt-3">Generated by the what-llm HF crawler · data snapshot in <span class="mono">models/</span> ·
     <span class="mono" id="d-updated"></span></footer>
 </div>
 
@@ -367,13 +373,14 @@
       (state.models.length ? " of " + state.models.length : "") +
       (state.hwonly ? " — filtered to hardware that fits" : "");
     var grid = $("#list"); grid.textContent = "";
+    grid.className = "row g-3";
     var i = 0;
     function chunk(){
       var end = Math.min(i + 50, list.length);
       for(; i < end; i++){
         var m = list[i];
         var card = document.createElement("div");
-        card.className = "card" + (m.id === state.selectedId ? " sel" : "");
+        card.className = "card h-100 shadow-sm" + (m.id === state.selectedId ? " sel" : "");
         card.setAttribute("role","listitem");
         card.dataset.id = m.id;
         var nm = document.createElement("div"); nm.className = "nm";
@@ -402,7 +409,10 @@
           if(ev.target && ev.target.classList && ev.target.classList.contains("cmpbox")) return;
           selectModel(this.dataset.id);
         });
-        grid.appendChild(card);
+        var col = document.createElement("div");
+        col.className = "col-12 col-sm-6 col-lg-4";
+        col.appendChild(card);
+        grid.appendChild(col);
       }
       if(i < list.length) requestAnimationFrame(chunk);
     }
@@ -636,9 +646,9 @@
     if(rec.length){
       var r0 = rec[0];
       var top = document.createElement("div");
-      top.className = "srv-top";
+      top.className = "srv-top fw-semibold";
       top.innerHTML = "★ Recommended for " + esc(catLabel(cat)) + ": <b>" + esc(r0.name) + "</b> " +
-        "<span class=\"badge\">" + esc(r0.backend) + "</span> <span class=\"hint\">" + esc(r0.reason) + "</span>";
+        "<span class=\"badge text-bg-success\">" + esc(r0.backend) + "</span> <span class=\"hint\">" + esc(r0.reason) + "</span>";
       var lnk = document.createElement("a");
       lnk.href = SERVERS[r0.name].url; lnk.target = "_blank"; lnk.rel = "noopener";
       lnk.textContent = " " + r0.name + " ↗";
@@ -709,8 +719,18 @@
       res.textContent = "No models fit that combination — try a bigger device or a lower tier.";
       return;
     }
+    var best = recommendServers(top[0], cat)[0];
+    if(best){
+      var sum = document.createElement("div");
+      sum.id = "w-srv-summary";
+      sum.className = "alert alert-primary py-2 small";
+      sum.innerHTML = "🏃 Best server for " + esc(catLabel(cat)) + ": <b>" + esc(best.name) + "</b> " +
+        "<span class=\"badge text-bg-primary\">" + esc(best.backend) + "</span> — " + esc(best.reason) +
+        " &nbsp;<a href=\"" + SERVERS[best.name].url + "\" target=\"_blank\" rel=\"noopener\">" + esc(best.name) + " ↗</a>";
+      res.appendChild(sum);
+    }
     top.forEach(function(m){
-      var row = document.createElement("div"); row.className = "wrow";
+      var row = document.createElement("div"); row.className = "wrow list-group-item";
       var a = document.createElement("a"); a.href = "#m/" + encodeURIComponent(m.id);
       a.textContent = m.name + " (" + fmtN(m.parameters_b) + "B)";
       a.addEventListener("click", function(e){ e.preventDefault(); selectModel(m.id); });
@@ -721,8 +741,8 @@
       row.appendChild(why);
       var rec0 = recommendServers(m, cat)[0];
       if(rec0){
-        var sug = document.createElement("div"); sug.className = "srv-sug";
-        sug.innerHTML = "→ " + esc(rec0.name) + " <span class=\"badge\">" + esc(rec0.backend) + "</span> <span class=\"hint\">(" + esc(rec0.reason) + ")</span>";
+        var sug = document.createElement("div"); sug.className = "srv-sug mt-1 small";
+        sug.innerHTML = "🏃 Run with: <b>" + esc(rec0.name) + "</b> <span class=\"badge text-bg-primary\">" + esc(rec0.backend) + "</span> <span class=\"hint\">(" + esc(rec0.reason) + ")</span> <a href=\"" + SERVERS[rec0.name].url + "\" target=\"_blank\" rel=\"noopener\">" + esc(rec0.name) + " ↗</a>";
         row.appendChild(sug);
       }
       res.appendChild(row);

@@ -419,8 +419,32 @@ test('wizard picks show a suggested server per row (issue #30)', async () => {
   const rows = [...window.document.querySelectorAll('#w-results .wrow')];
   rows.forEach(r => {
     const sug = r.querySelector('.srv-sug');
-    assert.ok(sug && sug.textContent.includes('→'), 'row has server suggestion: ' + r.textContent.slice(0,60));
+    assert.ok(sug && sug.textContent.includes('Run with'), 'row has server suggestion: ' + r.textContent.slice(0,60));
     assert.ok(sug.textContent.includes('badge') || sug.querySelector('.badge'), 'suggestion has backend badge');
   });
+  dom.window.close();
+});
+
+test('Bootstrap theme: vendored stylesheet linked + wizard shows best-server summary (issue #31 UI)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  const link = [...window.document.querySelectorAll('link[rel="stylesheet"]')]
+    .find(l => (l.href || '').includes('bootstrap.min.css'));
+  assert.ok(link, 'bootstrap.min.css linked');
+  assert.ok(link.href.startsWith(window.location.href.split('index.html')[0]) || link.href.includes('vendor/'),
+    'vendored (local) stylesheet: ' + link.href);
+  // card grid uses bootstrap row/col classes
+  assert.ok(window.document.querySelector('#list.row'), '#list is a bootstrap row');
+  assert.ok(window.document.querySelector('.card.h-100'), 'cards carry bootstrap classes');
+  // wizard summary line
+  change(window, '#w-hwcat', 'nvidia');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '24');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  const sum = window.document.querySelector('#w-srv-summary');
+  assert.ok(sum && sum.textContent.includes('Best server'), 'wizard best-server summary');
+  assert.ok(sum.textContent.includes('Ollama'), 'summary recommends Ollama for NVIDIA: ' + sum.textContent.slice(0,80));
   dom.window.close();
 });
