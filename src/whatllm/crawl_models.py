@@ -348,6 +348,53 @@ class Crawler:
             gated=gated,
         )
 
+    # ---- refresh existing models ----
+    def refresh(self, in_dir: str | None = None) -> list[dict]:
+        """Update EXISTING model files in-place: re-fetch HF details and refresh
+        volatile metadata (downloads, trending, license, context, profile…).
+        Quantizations + hardware flags are preserved (file sizes are stable)."""
+        src = Path(in_dir) if in_dir else self.out_dir
+        if not src.exists():
+            raise HFError(f"refresh: input dir missing: {src}")
+        files = sorted(src.glob("*.json"))
+        files = [f for f in files if f.name not in ("index.json", "meta.json")]
+        log.info("refresh: %d existing model files in %s", len(files), src)
+        for path in files:
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as exc:
+                log.warning("refresh: skip unreadable %s: %s", path.name, exc)
+                continue
+            model_id = record.get("id")
+            if not model_id:
+                continue
+            detail = self.fetch_detail(model_id)
+            # volatile fields straight from the detail endpoint
+            if "downloads" in detail:
+                record["downloads"] = detail["downloads"]
+            if "trendingScore" in detail:
+                record["trending_score"] = detail["trendingScore"]
+            if detail.get("name"):
+                record["name"] = detail["name"]
+            if detail.get("author"):
+                record["author"] = detail["author"]
+            record["last_updated"] = date.today().isoformat()
+            readme_text = None
+            config = None
+            if detail.get("gated") in (False, None):
+                readme_text = self.fetch_readme(model_id)
+                time.sleep(RATE_DELAY_S)
+                config = self.fetch_config_raw(model_id)
+            self._enrich(record, detail, readme_text, config)
+            errors = artifacts.validate_model(record)
+            if errors:
+                log.warning("refresh: %s schema invalid: %s", model_id, errors[:2])
+                continue
+            self.models.append(record)
+            time.sleep(RATE_DELAY_S)
+        log.info("refresh: %d/%d models updated", len(self.models), len(files))
+        return self.models
+
     # ---- pipeline ----
     def run(self) -> list[dict]:
         self.load_state()
@@ -400,6 +447,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--filter", choices=["text-generation", "gguf", "none"],
                    default="text-generation", help="focus filter (default text-generation)")
     p.add_argument("--out", default="models", help="output directory (default models)")
+    p.add_argument("--in", dest="in_dir", default=None,
+                   help="refresh: read existing model files from this dir (default: --out)")
+    p.add_argument("--refresh", action="store_true",
+                   help="update EXISTING model files (metadata/downloads/trending) instead of crawling trending")
     p.add_argument("--state", default="data/state.json", help="checkpoint file")
     p.add_argument("--dry-run", action="store_true", help="fetch + validate but do not write")
     p.add_argument("-v", "--verbose", action="store_true", help="debug logging")
@@ -415,7 +466,10 @@ def main(argv: list[str] | None = None) -> int:
     crawler = Crawler(limit=args.limit, focus=args.filter, out_dir=args.out,
                       state_file=args.state, dry_run=args.dry_run)
     try:
-        crawler.run()
+        if args.refresh:
+            crawler.refresh(in_dir=args.in_dir)
+        else:
+            crawler.run()
         crawler.emit()
     except HFError as exc:
         log.error("crawl aborted: %s", exc)

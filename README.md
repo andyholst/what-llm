@@ -68,7 +68,8 @@ pre-create the network).
 
 ```sh
 make build            # nerdctl build the crawler image
-make crawl LIMIT=150  # run the crawler; per-model JSON lands in ./models (bind-mounted)
+make crawl LIMIT=150  # run the TRENDING crawler; per-model JSON lands in ./models (bind-mounted)
+make refresh          # update EXISTING models in ./models: downloads, trending, metadata, profile
 make serve            # http://localhost:8000 — serves the frontend (index.html + models/)
 ```
 

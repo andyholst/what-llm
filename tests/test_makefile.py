@@ -44,6 +44,14 @@ def test_crawl_target_mounts_volumes_and_host_network():
     assert "--limit 5" in out
 
 
+def test_refresh_target_updates_existing_models():
+    out = make_n("refresh")
+    assert "--refresh" in out
+    assert "--out /app/models" in out
+    assert "--in /app/models" in out
+    assert "--network host" in out
+
+
 def test_serve_overrides_entrypoint_and_serves_repo():
     out = make_n("serve")
     assert "--entrypoint python" in out
