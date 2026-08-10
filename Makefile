@@ -11,14 +11,15 @@ UID_GID := $(shell id -u):$(shell id -g)
 COMPOSE_FILE := docker-compose-files/ci.yaml
 COMPOSE := $(DOCKER) compose -f $(COMPOSE_FILE)
 
-.PHONY: ci py-test node-test build crawl serve clean help
+.PHONY: ci py-test node-test build crawl refresh serve clean help
 
 help: ## Show available targets
 	@echo "make ci         - FULL GATE: build + run py and node test containers (what GitHub Actions runs)"
 	@echo "make py-test    - Python test suite in its container"
 	@echo "make node-test  - jsdom + Playwright + node --check + openspec validate in the node container"
 	@echo "make build      - nerdctl build the crawler image"
-	@echo "make crawl      - nerdctl run the crawler (--limit $(LIMIT)); JSON into ./models"
+	@echo "make crawl      - nerdctl run the crawler (--limit $(LIMIT)); trending HF models into ./models"
+	@echo "make refresh    - nerdctl update EXISTING models in ./models (metadata, downloads, trending)"
 	@echo "make serve      - nerdctl run http.server on :$(SERVE_PORT) serving the frontend"
 	@echo "make clean      - nerdctl rmi the crawler image"
 
@@ -42,6 +43,13 @@ crawl: ## Run the crawler in the container; models/ + data/ are bind-mounted
 		-v $(CURDIR)/models:/app/models \
 		-v $(CURDIR)/data:/app/data \
 		$(IMAGE) --limit $(LIMIT)
+
+refresh: ## Update EXISTING models' metadata from HF (downloads, trending, license, context)
+	mkdir -p models data
+	$(NERDCTL) run --rm --network host --user $(UID_GID) \
+		-v $(CURDIR)/models:/app/models \
+		-v $(CURDIR)/data:/app/data \
+		$(IMAGE) --refresh --out /app/models --in /app/models
 
 serve: ## Serve the frontend (index.html + models/) via the container
 	mkdir -p models
