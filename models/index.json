@@ -22,6 +22,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 4096,
     "est_vram_gb": 3.64,
     "best_for": [
       "chat",
@@ -52,6 +53,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 40960,
     "est_vram_gb": 6.31,
     "best_for": [
       "chat",
@@ -84,6 +86,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 6.21,
     "best_for": [
       "chat",
@@ -114,6 +117,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 5.99,
     "best_for": [
       "chat",
@@ -144,6 +148,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 32768,
     "est_vram_gb": 10.34,
     "best_for": [
       "chat",
@@ -175,6 +180,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 32768,
     "est_vram_gb": 29.88,
     "best_for": [
       "chat",
@@ -204,6 +210,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 45.8,
     "best_for": [
       "chat",
@@ -235,6 +242,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 411.95,
     "best_for": [
       "reasoning",
@@ -265,6 +273,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 2.05,
     "best_for": [
       "chat",
@@ -295,6 +304,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 32768,
     "est_vram_gb": 3.19,
     "best_for": [
       "chat",
@@ -326,6 +336,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 32768,
     "est_vram_gb": 3.63,
     "best_for": [
       "chat",
@@ -355,6 +366,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 21.35,
     "best_for": [
       "chat",
@@ -387,6 +399,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 44.51,
     "best_for": [
       "chat",
@@ -417,6 +430,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 88.2,
     "best_for": [
       "reasoning",
@@ -446,6 +460,7 @@
       "llamafile",
       "gpt4all"
     ],
+    "context_window": 131072,
     "est_vram_gb": 6.21,
     "best_for": [
       "chat",

@@ -37,6 +37,9 @@ VALID = {
                     "64gb": True, "96gb": True, "128gb": True},
         "mac_studio": {"32gb": True, "64gb": True, "96gb": True, "128gb": True,
                        "192gb": True, "256gb": True, "512gb": True},
+        "mac_mini": {"16gb": True, "24gb": True, "32gb": True, "48gb": True,
+                     "64gb": True, "128gb": True},
+        "mac_pro": {"192gb": True, "384gb": True, "512gb": True},
         "dgx": {"640gb": True, "1128gb": True, "1440gb": True},
         "android": {"8gb": True, "12gb": True, "16gb": True, "24gb": True,
                     "note": "Practical at the smallest quant (~3.6 GB est.) on flagship Android"},
@@ -177,3 +180,15 @@ def test_nvidia_32gb_tier_valid():
     rec = json.loads(json.dumps(VALID))
     rec["hardware"]["nvidia"]["32gb"] = True   # RTX 5090 tier key
     assert validate(rec) == []
+
+
+def test_mac_mini_rejects_unknown_tier():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["mac_mini"]["96gb"] = True   # no 96 GB Mac Mini config
+    assert validate(rec)
+
+
+def test_mac_pro_requires_all_tiers():
+    rec = json.loads(json.dumps(VALID))
+    rec["hardware"]["mac_pro"] = {"192gb": True}  # missing 384gb/512gb
+    assert validate(rec)

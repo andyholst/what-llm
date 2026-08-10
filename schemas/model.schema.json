@@ -367,6 +367,58 @@
             "32gb",
             "64gb"
           ]
+        },
+        "mac_mini": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "16gb": {
+              "type": "boolean"
+            },
+            "24gb": {
+              "type": "boolean"
+            },
+            "32gb": {
+              "type": "boolean"
+            },
+            "48gb": {
+              "type": "boolean"
+            },
+            "64gb": {
+              "type": "boolean"
+            },
+            "128gb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "16gb",
+            "24gb",
+            "32gb",
+            "48gb",
+            "64gb",
+            "128gb"
+          ]
+        },
+        "mac_pro": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "192gb": {
+              "type": "boolean"
+            },
+            "384gb": {
+              "type": "boolean"
+            },
+            "512gb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "192gb",
+            "384gb",
+            "512gb"
+          ]
         }
       }
     },

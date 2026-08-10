@@ -41,6 +41,10 @@ SNAPDRAGON_TIERS = [16, 32, 64]
 # treated like macOS unified memory (usable = tier - MAC_SYSTEM_GB)
 MACBOOK_TIERS = [16, 24, 32, 48, 64, 96, 128]        # M5 Max tops out at 128 GB (verified, Apple)
 MAC_STUDIO_TIERS = [32, 64, 96, 128, 192, 256, 512]  # M4 Max 64, M3 Ultra up to 512 GB
+MAC_MINI_TIERS = [16, 24, 32, 48, 64, 128]
+# Mac Mini: M4 16, M4 Pro 24/48, M4 Max 32/64/128 GB (verified Apple spec pages)
+MAC_PRO_TIERS = [192, 384, 512]
+# Mac Pro: M3 Ultra configs 192/384/512 GB unified (verified Apple/industry)
 DGX_TIERS = [640, 1128, 1440]                        # DGX A100/H100 640, H200 1128, B200 1440 GB total
 ANDROID_TIERS = [8, 12, 16, 24]                      # e.g. Galaxy S25 Ultra 12/16 GB
 IPHONE_TIERS = [8, 12]                               # iPhone 17 Pro 12 GB
@@ -137,6 +141,20 @@ def _phone_flags(params_b: float, est: float, min_est: float,
     return {"boxes": boxes, "note": note, "practical": practical}
 
 
+AGENTIC_CTX_MIN = 32768  # agentic coding needs long context (heuristic, documented)
+
+
+def agentic_capable(best_for: list[str] | None, context_window: int | None) -> bool:
+    """A model can drive agentic coding when it is a coding/reasoning/agentic
+    model AND offers long context (>= AGENTIC_CTX_MIN)."""
+    if not best_for:
+        return False
+    tags = {t.lower() for t in best_for}
+    if not (tags & {"agentic", "coding", "reasoning", "code"}):
+        return False
+    return isinstance(context_window, int) and context_window >= AGENTIC_CTX_MIN
+
+
 def hardware_flags(params_b: float, quants: list[dict]) -> dict:
     """Hardware compatibility anchored on the recommended quant (quants[0])."""
     if not quants:
@@ -149,15 +167,18 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
     intel_arc = _tier_flags(est, INTEL_ARC_TIERS)
     snapdragon = _mac_flags(est, SNAPDRAGON_TIERS)   # unified memory like macOS
     macbook = _mac_flags(est, MACBOOK_TIERS)
+    mac_mini = _mac_flags(est, MAC_MINI_TIERS)
     mac_studio = _mac_flags(est, MAC_STUDIO_TIERS)
+    mac_pro = _mac_flags(est, MAC_PRO_TIERS)
     dgx = _tier_flags(est, DGX_TIERS)
     android = _phone_flags(params_b, est, min_est, ANDROID_TIERS, "Android")
     iphone = _phone_flags(params_b, est, min_est, IPHONE_TIERS, "iPhone")
 
     consumer_any = (
         any(nvidia.values()) or any(amd.values()) or any(intel_arc.values())
-        or any(snapdragon.values()) or any(macbook.values())
-        or any(mac_studio.values()) or any(android["boxes"].values())
+        or any(snapdragon.values()) or any(macbook.values()) or any(mac_mini.values())
+        or any(mac_studio.values()) or any(mac_pro.values())
+        or any(android["boxes"].values())
         or any(iphone["boxes"].values())
     )
     if not consumer_any:
@@ -171,7 +192,9 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
         "intel_arc": intel_arc,
         "snapdragon": snapdragon,
         "macbook": macbook,
+        "mac_mini": mac_mini,
         "mac_studio": mac_studio,
+        "mac_pro": mac_pro,
         "dgx": dgx,
         "android": {**android["boxes"], "note": android["note"]},
         "iphone": {**iphone["boxes"], "note": iphone["note"]},

@@ -34,7 +34,8 @@ After that, every PR merge re-deploys automatically; `workflow_dispatch` re-runs
   best-effort benchmarks (honest verified/unverified)
 - **Hardware-fit boxes** — NVIDIA (8–96 GB incl. RTX 5090 32 GB), AMD (8–192 GB
   incl. RX 7900 XT 20 GB), Intel Arc (SYCL/Vulkan), Snapdragon X (unified memory),
-  MacBook / Mac Studio (Metal), DGX, Android, iPhone — recomputed live from the
+  MacBook / Mac Mini / Mac Studio / Mac Pro (Metal), DGX, Android, iPhone —
+  recomputed live from the
   selected quant (est VRAM + 1.5 GB headroom vs tier), with backend labels
   (CUDA / ROCm / Metal / SYCL+Vulkan) on every section
 - **Run locally with → recommended server** — for every (model × hardware) pair the
