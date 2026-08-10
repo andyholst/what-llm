@@ -337,3 +337,49 @@ test('Intel Arc + Snapdragon wizard parity (new sections use the same fit math)'
   });
   dom.window.close();
 });
+
+test('details pane shows "Run locally with" server chips with links (issue #27)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  click(window, '.card');
+  await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
+  const links = [...window.document.querySelectorAll('#d-servers a')];
+  assert.ok(links.length >= 4, 'GGUF model lists GGUF servers, got: ' + links.length);
+  links.forEach(a => {
+    assert.ok(a.href.startsWith('http'), 'chip links out: ' + a.href);
+    assert.ok(a.textContent.includes('↗'), 'chip has open marker');
+  });
+  const names = links.map(a => a.textContent);
+  assert.ok(names.some(n => n.includes('llama.cpp')) && names.some(n => n.includes('Ollama')),
+    'llama.cpp + Ollama present');
+  dom.window.close();
+});
+
+test('wizard server filter: Ollama keeps GGUF picks, vLLM yields none (all samples GGUF)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  const opts = [...window.document.querySelector('#w-server').options].map(o => o.value);
+  assert.ok(opts.includes('llama.cpp') && opts.includes('vLLM') && opts.includes('Ollama'),
+    'server select populated: ' + opts.join(','));
+  change(window, '#w-hwcat', 'nvidia');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '24');
+  change(window, '#w-server', 'Ollama');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m && (m.servers || []).includes('Ollama'), name + ' runs on Ollama');
+    assert.ok(m && m.est_vram_gb + 1.5 <= 24, name + ' fits NVIDIA 24GB');
+  });
+  // vLLM: no GGUF sample supports it -> honest no-match guidance
+  change(window, '#w-server', 'vLLM');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelector('#w-results').textContent.length > 0);
+  assert.ok(window.document.querySelector('#w-results').textContent.includes('No models fit'),
+    'vLLM filter explains no matches (all samples are GGUF)');
+  dom.window.close();
+});

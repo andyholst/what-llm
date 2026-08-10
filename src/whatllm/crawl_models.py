@@ -28,7 +28,7 @@ from pathlib import Path
 
 import requests
 
-from whatllm import artifacts, estimator, profile
+from whatllm import artifacts, estimator, profile, servers
 
 log = logging.getLogger("whatllm.crawl")
 
@@ -334,6 +334,7 @@ class Crawler:
         record["languages"] = detect_languages(tags)
         record["knowledge_cutoff"] = detect_knowledge_cutoff(readme_text)
         record["benchmarks"] = benchmarks
+        record["servers"] = servers.servers_for_model(record["quants"])
         record["profile"] = profile.build_profile(
             record["id"],
             readme_text=readme_text,

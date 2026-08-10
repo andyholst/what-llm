@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-from whatllm import artifacts, estimator, profile
+from whatllm import artifacts, estimator, profile, servers
 
 ROOT = Path(__file__).resolve().parents[2]
 MODELS_DIR = ROOT / "models"
@@ -70,6 +70,7 @@ def _model(
         "languages": languages or [],
         "knowledge_cutoff": knowledge_cutoff,
         "benchmarks": benchmarks or [],
+        "servers": servers.servers_for_model(quants),
         "last_updated": TODAY,
     }
 

@@ -59,6 +59,7 @@ VALID = {
     "languages": ["en", "zh"],
     "knowledge_cutoff": "2025-03",
     "benchmarks": [{"dataset": "ifstruct-v1.0", "value": 79.75, "verified": False, "date": "2026-06-30", "source": "community"}],
+    "servers": ["llama.cpp", "Ollama", "LM Studio", "koboldcpp"],
 }
 
 
@@ -75,7 +76,7 @@ def test_valid_record_passes():
     "id", "name", "author", "parameters_b", "architecture", "pipeline_tag",
     "hf_url", "trending_score", "downloads", "quants", "hardware", "last_updated",
     "profile", "license", "commercial_ok", "context_window", "model_type",
-    "languages", "knowledge_cutoff", "benchmarks",
+    "languages", "knowledge_cutoff", "benchmarks", "servers",
 ])
 def test_missing_required_field_fails(field):
     rec = {k: v for k, v in VALID.items() if k != field}
