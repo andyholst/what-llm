@@ -94,13 +94,15 @@ test('selecting a model renders 7 hardware sections with correct box counts', as
   click(window, '.card');
   await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
   const h3s = [...window.document.querySelectorAll('#d-hw-sections h3')].map((h) => h.textContent);
-  assert.equal(h3s.length, 9);
+  assert.equal(h3s.length, 11);
   assert.equal(window.document.querySelectorAll('#hw-nvidia .box').length, 8);
   assert.equal(window.document.querySelectorAll('#hw-amd .box').length, 8);
   assert.equal(window.document.querySelectorAll('#hw-intel_arc .box').length, 4);
   assert.equal(window.document.querySelectorAll('#hw-snapdragon .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-macbook .box').length, 7);
+  assert.equal(window.document.querySelectorAll('#hw-mac_mini .box').length, 6);
   assert.equal(window.document.querySelectorAll('#hw-mac_studio .box').length, 7);
+  assert.equal(window.document.querySelectorAll('#hw-mac_pro .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-dgx .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-android .box').length, 4);
   assert.equal(window.document.querySelectorAll('#hw-iphone .box').length, 2);
@@ -447,3 +449,62 @@ test('Bootstrap theme: vendored stylesheet linked + wizard shows best-server sum
   assert.ok(styles.includes('.pcols') && styles.includes('.cmptable'), 'Quartz overrides in style block');
   dom.window.close();
 });
+
+test('Mac Mini + Mac Pro sections appear in hardware filter and wizard (issue: more Macs)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  const hwOpts = [...window.document.querySelectorAll('#hwcat option')].map(o => o.value);
+  assert.ok(hwOpts.includes('mac_mini') && hwOpts.includes('mac_pro'), 'hw filter has Mac Mini/Pro');
+  const wOpts = [...window.document.querySelectorAll('#w-hwcat option')].map(o => o.value);
+  assert.ok(wOpts.includes('mac_mini') && wOpts.includes('mac_pro'), 'wizard has Mac Mini/Pro');
+  change(window, '#w-hwcat', 'mac_mini');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '64');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m && m.est_vram_gb + 1.5 <= 64 - 3.5, name + ' fits Mac Mini 64GB (unified 60.5)');
+  });
+  dom.window.close();
+});
+
+test('agentic-coding filter + badge (coding/reasoning model with 32K+ context)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  change(window, '#w-hwcat', 'nvidia');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '24');
+  // without the filter: picks exist
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  // with the agentic filter: every pick is a coding/reasoning model with 32K+ ctx
+  check(window, '#w-agentic', true);
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    const tags = (m.best_for || []).join(' ').toLowerCase();
+    assert.ok(/(agentic|coding|reasoning|code)/.test(tags), name + ' is coding/reasoning');
+    assert.ok((m.context_window || 0) >= 32768, name + ' has 32K+ context');
+  });
+  // details pane shows the agentic badge for a capable model
+  click(window, '.card');
+  await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
+  const badge = window.document.querySelector('#d-agentic');
+  const sel = window.MODELS_INDEX.find(x => x.id === window.document.querySelector('.card.sel')?.dataset?.id);
+  if (sel && agenticTest(sel)) {
+    assert.ok(badge && badge.style.display !== 'none' && badge.textContent.includes('Agentic coding ready'),
+      'agentic badge visible: ' + (badge && badge.textContent.slice(0,60)));
+  }
+  dom.window.close();
+});
+
+function agenticTest(m){
+  const tags = (m.best_for || []).join(' ').toLowerCase();
+  return /(agentic|coding|reasoning|code)/.test(tags) && (m.context_window || 0) >= 32768;
+}

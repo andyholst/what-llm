@@ -233,3 +233,27 @@ def test_flags_snapdragon_unified_memory_math():
     hw_big = estimator.hardware_flags(85.0, qs_big)
     assert hw_big["snapdragon"]["32gb"] is False   # 57.8 > 28.5
     assert hw_big["snapdragon"]["64gb"] is True    # 57.8 <= 60.5 (64-3.5)
+
+
+def test_flags_mac_mini_and_mac_pro_sections():
+    """Mac Mini (M4 16..M4 Max 128) + Mac Pro (M3 Ultra 192/384/512), unified -3.5."""
+    qs = estimator.synthesize_quants(72.71)          # est 45.8 -> needs 47.3
+    hw = estimator.hardware_flags(72.71, qs)
+    assert hw["mac_mini"]["48gb"] is False            # 47.3 > 44.5 (48-3.5)
+    assert hw["mac_mini"]["64gb"] is True             # 47.3 <= 60.5
+    assert hw["mac_mini"]["128gb"] is True
+    assert hw["mac_pro"]["192gb"] is True
+    assert hw["mac_pro"]["512gb"] is True
+    # a small model fits the base Mac Mini
+    hw2 = estimator.hardware_flags(8.19, estimator.synthesize_quants(8.19))
+    assert hw2["mac_mini"]["16gb"] is True
+
+
+def test_agentic_capable():
+    assert estimator.agentic_capable(["coding", "chat"], 32768) is True
+    assert estimator.agentic_capable(["reasoning"], 131072) is True
+    assert estimator.agentic_capable(["agentic"], 32768) is True
+    assert estimator.agentic_capable(["coding"], 8192) is False       # context too small
+    assert estimator.agentic_capable(["chat", "rag"], 131072) is False  # no coding tag
+    assert estimator.agentic_capable(None, 131072) is False
+    assert estimator.agentic_capable(["coding"], None) is False

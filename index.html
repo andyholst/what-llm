@@ -96,6 +96,8 @@
       <option value="snapdragon">Snapdragon X (unified)</option>
       <option value="macbook">MacBook</option>
       <option value="mac_studio">Mac Studio</option>
+      <option value="mac_mini">Mac Mini</option>
+      <option value="mac_pro">Mac Pro</option>
       <option value="dgx">NVIDIA DGX</option>
       <option value="android">Android phone</option>
       <option value="iphone">iPhone</option>
@@ -127,6 +129,8 @@
         <option value="snapdragon">Snapdragon X (unified)</option>
         <option value="macbook">MacBook</option>
         <option value="mac_studio">Mac Studio</option>
+        <option value="mac_mini">Mac Mini</option>
+        <option value="mac_pro">Mac Pro</option>
         <option value="dgx">NVIDIA DGX</option>
         <option value="android">Android phone</option>
         <option value="iphone">iPhone</option>
@@ -134,6 +138,7 @@
       <select id="w-hwtier" class="form-select form-select-sm" style="width:auto" aria-label="Wizard device memory" disabled><option value="">VRAM / RAM…</option></select>
       <select id="w-use" class="form-select form-select-sm" style="width:auto" aria-label="Wizard use case"><option value="">What do I need?…</option></select>
       <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="w-commercial"> commercial only</label>
+      <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="w-agentic" title="Only models with coding/reasoning + 32K+ context"> agentic coding</label>
       <button type="button" id="w-go" class="btn btn-primary btn-sm">Show my picks</button>
     </div>
     <div id="w-results" class="wlist list-group list-group-flush"></div>
@@ -162,6 +167,7 @@
       <div class="profile" id="d-profile">
         <h3>What is it good for?</h3>
         <p class="note" id="d-summary"></p>
+        <div class="hint" id="d-agentic" style="display:none"></div>
         <div class="chips" id="d-bestfor" role="group" aria-label="Best for"></div>
         <div class="facts" id="d-meta"></div>
         <div class="pcols">
@@ -217,6 +223,9 @@
               {k:"64gb",v:64},{k:"96gb",v:96},{k:"128gb",v:128}],
     mac_studio: [{k:"32gb",v:32},{k:"64gb",v:64},{k:"96gb",v:96},{k:"128gb",v:128},
                  {k:"192gb",v:192},{k:"256gb",v:256},{k:"512gb",v:512}],
+    mac_mini: [{k:"16gb",v:16},{k:"24gb",v:24},{k:"32gb",v:32},{k:"48gb",v:48},
+               {k:"64gb",v:64},{k:"128gb",v:128}],
+    mac_pro: [{k:"192gb",v:192},{k:"384gb",v:384},{k:"512gb",v:512}],
     dgx:    [{k:"640gb",v:640},{k:"1128gb",v:1128},{k:"1440gb",v:1440}],
     android:[{k:"8gb",v:8},{k:"12gb",v:12},{k:"16gb",v:16},{k:"24gb",v:24}],
     iphone: [{k:"8gb",v:8},{k:"12gb",v:12}]
@@ -228,12 +237,20 @@
     {sec:"snapdragon", label:"Snapdragon X — CPU / Adreno Vulkan (unified)"},
     {sec:"macbook", label:"MacBook — Metal (unified memory)"},
     {sec:"mac_studio", label:"Mac Studio — Metal (unified memory)"},
+    {sec:"mac_mini", label:"Mac Mini — Metal (unified memory)"},
+    {sec:"mac_pro", label:"Mac Pro — Metal (unified memory)"},
     {sec:"dgx", label:"NVIDIA DGX — CUDA (total GPU memory)"},
     {sec:"android", label:"Android (CPU)"},
     {sec:"iphone", label:"iPhone (CPU)"}
   ];
-  var MAC_CATS = {macbook: true, mac_studio: true, snapdragon: true};
+  var MAC_CATS = {macbook: true, mac_studio: true, mac_mini: true, mac_pro: true, snapdragon: true};
   function catLabel(c){ var f = SECTIONS.filter(function(x){ return x.sec === c; }); return f.length ? f[0].label : c; }
+  // agentic coding = coding/reasoning/agentic model AND long context (>= 32K)
+  function agenticOk(m){
+    var tags = (m.best_for || []).join(" ").toLowerCase();
+    if(!/(agentic|coding|reasoning|code)/.test(tags)) return false;
+    return (m.context_window || 0) >= 32768;
+  }
   function esc(t){ return String(t == null ? "" : t).replace(/[&<>"']/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]; }); }
   // inference-server catalog (inference-server-catalog, issue #27) — mirrors
   // src/whatllm/servers.py; backends are booleans per hardware category
@@ -588,6 +605,13 @@
   function renderProfile(m){
     var prof = m.profile || {};
     $("#d-summary").textContent = prof.summary || "";
+    var ag = $("#d-agentic");
+    if(agenticOk(m)){
+      ag.style.display = "";
+      ag.innerHTML = "🤖 <b>Agentic coding ready</b> — coding/reasoning model with " + (m.context_window || 0).toLocaleString() + " token context";
+    } else {
+      ag.style.display = "none";
+    }
     var bf = $("#d-bestfor"); bf.textContent = "";
     (prof.best_for || []).forEach(function(uc){
       var s = document.createElement("span");
@@ -686,6 +710,7 @@
     var picks = state.models.filter(function(m){
       if(needUse && (m.best_for || []).indexOf(use) === -1) return false;
       if($("#w-commercial").checked && m.commercial_ok === false) return false;
+      if($("#w-agentic").checked && !agenticOk(m)) return false;
       return fitsFor(m, cat, tier);
     });
     picks.sort(function(a,b){ return b.trending_score - a.trending_score; });
@@ -702,7 +727,7 @@
       row.appendChild(a);
       var why = document.createElement("div"); why.className = "why";
       why.textContent = (m.best_for || []).slice(0,3).join(" · ") +
-        " · ~" + m.est_vram_gb + " GB est.";
+        " · ~" + m.est_vram_gb + " GB est." + (agenticOk(m) ? " · 🤖 agentic coding" : "");
       row.appendChild(why);
       var recs = recommendServers(m, cat);
       if(recs.length){

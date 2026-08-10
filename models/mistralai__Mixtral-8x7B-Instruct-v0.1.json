@@ -69,6 +69,14 @@
       "96gb": true,
       "128gb": true
     },
+    "mac_mini": {
+      "16gb": false,
+      "24gb": false,
+      "32gb": false,
+      "48gb": true,
+      "64gb": true,
+      "128gb": true
+    },
     "mac_studio": {
       "32gb": false,
       "64gb": true,
@@ -76,6 +84,11 @@
       "128gb": true,
       "192gb": true,
       "256gb": true,
+      "512gb": true
+    },
+    "mac_pro": {
+      "192gb": true,
+      "384gb": true,
       "512gb": true
     },
     "dgx": {

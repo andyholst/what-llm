@@ -20,6 +20,7 @@ SUMMARY_FIELDS = [
     "id", "name", "author", "parameters_b", "architecture",
     "pipeline_tag", "trending_score", "downloads", "est_vram_gb",
     "model_type", "commercial_ok", "license", "best_for", "servers",
+    "context_window",
 ]
 
 
