@@ -383,3 +383,44 @@ test('wizard server filter: Ollama keeps GGUF picks, vLLM yields none (all sampl
     'vLLM filter explains no matches (all samples are GGUF)');
   dom.window.close();
 });
+
+test('details pane RECOMMENDS a server per hardware (issue #30): NVIDIA → Ollama/CUDA, switch to Mac → Metal', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  click(window, '.card');
+  await waitFor(() => window.document.querySelector('#d-detail').style.display !== 'none', 6000);
+  // default category: nvidia -> recommended Ollama with CUDA badge
+  const rec = window.document.querySelector('#d-srv-rec').textContent;
+  assert.ok(rec.includes('Recommended') && rec.includes('Ollama'), 'recommendation line: ' + rec);
+  assert.ok(rec.includes('CUDA'), 'CUDA badge on NVIDIA: ' + rec);
+  const chips = [...window.document.querySelectorAll('#d-servers a')];
+  assert.ok(chips.some(c => c.textContent.includes('MLX')) === false, 'no MLX on NVIDIA');
+  assert.ok(chips.some(c => c.textContent.includes('vLLM')), 'vLLM listed as experimental alt on NVIDIA');
+  // switch category to macbook -> Metal + MLX appears (safetensors-only, so NOT for GGUF model)
+  change(window, '#d-srvcat', 'macbook');
+  const rec2 = window.document.querySelector('#d-srv-rec').textContent;
+  assert.ok(rec2.includes('Metal'), 'Metal badge on Mac: ' + rec2);
+  assert.ok(rec2.includes('Ollama'), 'Ollama recommended on Mac for GGUF model');
+  assert.ok(![...window.document.querySelectorAll('#d-servers a')].some(c => c.textContent.includes('CUDA')),
+    'no CUDA chips on Mac');
+  dom.window.close();
+});
+
+test('wizard picks show a suggested server per row (issue #30)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  change(window, '#w-hwcat', 'nvidia');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '24');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  const rows = [...window.document.querySelectorAll('#w-results .wrow')];
+  rows.forEach(r => {
+    const sug = r.querySelector('.srv-sug');
+    assert.ok(sug && sug.textContent.includes('→'), 'row has server suggestion: ' + r.textContent.slice(0,60));
+    assert.ok(sug.textContent.includes('badge') || sug.querySelector('.badge'), 'suggestion has backend badge');
+  });
+  dom.window.close();
+});

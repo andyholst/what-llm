@@ -189,9 +189,14 @@
   "benchmarks": [],
   "servers": [
     "llama.cpp",
+    "llama-server",
     "Ollama",
     "LM Studio",
-    "koboldcpp"
+    "koboldcpp",
+    "Jan",
+    "oobabooga",
+    "llamafile",
+    "gpt4all"
   ],
   "last_updated": "2026-08-10"
 }

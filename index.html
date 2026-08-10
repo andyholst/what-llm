@@ -186,6 +186,10 @@
       </div>
       <div class="profile" id="d-servers-block">
         <h3>Run locally with</h3>
+        <div class="row">
+          <select id="d-srvcat" aria-label="Hardware for server recommendation"></select>
+        </div>
+        <div class="srv-rec" id="d-srv-rec" role="status"></div>
         <div class="chips" id="d-servers" role="group" aria-label="Inference servers"></div>
       </div>
     </div>
@@ -212,7 +216,7 @@
     query: "", sort: "trending", models: [], selectedId: null, selectedQuant: 0,
     cache: {}, bundleInjected: false, updated: "",
     hwcat: "", hwtier: "", hwonly: false, ftype: "", fuse: "", fcommercial: false,
-    crawledAt: null, compare: [], wserver: ""
+    crawledAt: null, compare: [], wserver: "", srvcat: "nvidia"
   };
 
   var TIERS = {
@@ -242,22 +246,75 @@
     {sec:"iphone", label:"iPhone (CPU)"}
   ];
   var MAC_CATS = {macbook: true, mac_studio: true, snapdragon: true};
+  function catLabel(c){ var f = SECTIONS.filter(function(x){ return x.sec === c; }); return f.length ? f[0].label : c; }
+  function esc(t){ return String(t == null ? "" : t).replace(/[&<>"']/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]; }); }
   // inference-server catalog (inference-server-catalog, issue #27) — mirrors
   // src/whatllm/servers.py; backends are booleans per hardware category
   var SERVERS = {
-    "llama.cpp": {url: "https://github.com/ggml-org/llama.cpp",
-      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
-    "Ollama": {url: "https://ollama.com",
-      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
-    "vLLM": {url: "https://docs.vllm.ai",
-      backends: {nvidia:1, amd:1, intel_arc:1, dgx:1}},
-    "LM Studio": {url: "https://lmstudio.ai",
-      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
-    "koboldcpp": {url: "https://github.com/LostRuins/koboldcpp",
-      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
-    "TGI": {url: "https://huggingface.co/docs/text-generation-inference",
-      backends: {nvidia:1, amd:1, dgx:1}}
+    "llama.cpp":    {url: "https://github.com/ggml-org/llama.cpp", tier: "prod",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"SYCL/Vulkan", snapdragon:"CPU/Vulkan", dgx:"CUDA", android:"CPU", iphone:"CPU"}},
+    "llama-server": {url: "https://github.com/ggml-org/llama.cpp/tree/master/tools/server", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"SYCL/Vulkan", snapdragon:"CPU/Vulkan", dgx:"CUDA"}},
+    "Ollama":       {url: "https://ollama.com", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "LM Studio":    {url: "https://lmstudio.ai", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "koboldcpp":    {url: "https://github.com/LostRuins/koboldcpp", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "Jan":          {url: "https://jan.ai", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "oobabooga":    {url: "https://github.com/oobabooga/textgen", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "llamafile":    {url: "https://github.com/Mozilla-Ocho/llamafile", tier: "desktop",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA", android:"CPU"}},
+    "gpt4all":      {url: "https://www.nomic.ai/gpt4all", tier: "hobby",
+      backends: {nvidia:"CUDA", amd:"ROCm", macbook:"Metal", mac_studio:"Metal", intel_arc:"Vulkan", snapdragon:"CPU", dgx:"CUDA"}},
+    "vLLM":         {url: "https://docs.vllm.ai", tier: "prod",
+      backends: {nvidia:"CUDA", amd:"ROCm", intel_arc:"XPU", dgx:"CUDA"}},
+    "TGI":          {url: "https://huggingface.co/docs/text-generation-inference", tier: "prod",
+      backends: {nvidia:"CUDA", dgx:"CUDA"}},
+    "SGLang":       {url: "https://github.com/sgl-project/sglang", tier: "prod",
+      backends: {nvidia:"CUDA", dgx:"CUDA"}},
+    "TensorRT-LLM": {url: "https://github.com/NVIDIA/TensorRT-LLM", tier: "prod",
+      backends: {nvidia:"CUDA", dgx:"CUDA"}},
+    "MLX":          {url: "https://github.com/ml-explore/mlx-lm", tier: "desktop",
+      backends: {macbook:"Metal", mac_studio:"Metal"}}
   };
+  var SERVER_REASON = {
+    "Ollama": "easiest install (one command)", "LM Studio": "polished desktop GUI",
+    "llama.cpp": "most control + broadest backends", "llama-server": "OpenAI-compatible API from llama.cpp",
+    "koboldcpp": "creative/story workflows", "Jan": "privacy-first desktop app",
+    "oobabooga": "power-user desktop UI", "llamafile": "single-file, zero install",
+    "gpt4all": "simplest GUI (hobby, ~2k context)",
+    "vLLM": "highest throughput serving", "TGI": "Hugging Face production server",
+    "SGLang": "high-performance serving", "TensorRT-LLM": "maximum NVIDIA performance",
+    "MLX": "Apple-native (Metal) framework"
+  };
+  // recommendation: format (from m.servers) x hardware backends, ranked
+  function recommendServers(m, cat){
+    var gguf = (m.servers || []).indexOf("llama.cpp") !== -1;
+    var cands = [];
+    Object.keys(SERVERS).forEach(function(nm){
+      var s = SERVERS[nm];
+      var isSf = (nm === "vLLM" || nm === "TGI" || nm === "SGLang" || nm === "TensorRT-LLM" || nm === "MLX");
+      if(isSf === gguf) return;                       // format mismatch
+      if(nm === "MLX" && !(cat === "macbook" || cat === "mac_studio")) return;  // Apple-only
+      if(!s.backends[cat]) return;                    // backend mismatch
+      cands.push(nm);
+    });
+    // GGUF models can also load in vLLM experimentally on CUDA/ROCm
+    if(gguf && (cat === "nvidia" || cat === "amd" || cat === "dgx")) cands.push("vLLM");
+    var rank = {MLX:0, Ollama:1, "LM Studio":2};
+    cands.sort(function(a,b){ return (rank[a] !== undefined ? rank[a] : 3) - (rank[b] !== undefined ? rank[b] : 3); });
+    return cands.map(function(nm, i){
+      var note = "";
+      if(nm === "vLLM" && gguf) note = " (experimental GGUF plugin, ~8x slower)";
+      if(nm === "gpt4all") note = " (hobby, ~2k context)";
+      return {name: nm, tier: i === 0 ? "recommended" : "alternative",
+              backend: (SERVERS[nm].backends[cat] || "CPU"),
+              reason: (SERVER_REASON[nm] || "") + note};
+    });
+  }
   var PHONE_CATS = {android: true, iphone: true};
   var HEADROOM = 1.5, MAC_SYS = 3.5;
 
@@ -573,12 +630,28 @@
     fill("#d-weaknesses", prof.weaknesses);
     fill("#d-limitations", prof.limitations);
     var srv = $("#d-servers"); srv.textContent = "";
-    (m.servers || []).forEach(function(nm){
+    var cat = state.srvcat || "nvidia";
+    var rec = recommendServers(m, cat);
+    var recEl = $("#d-srv-rec"); recEl.textContent = "";
+    if(rec.length){
+      var r0 = rec[0];
+      var top = document.createElement("div");
+      top.className = "srv-top";
+      top.innerHTML = "★ Recommended for " + esc(catLabel(cat)) + ": <b>" + esc(r0.name) + "</b> " +
+        "<span class=\"badge\">" + esc(r0.backend) + "</span> <span class=\"hint\">" + esc(r0.reason) + "</span>";
+      var lnk = document.createElement("a");
+      lnk.href = SERVERS[r0.name].url; lnk.target = "_blank"; lnk.rel = "noopener";
+      lnk.textContent = " " + r0.name + " ↗";
+      top.appendChild(lnk);
+      recEl.appendChild(top);
+    }
+    rec.forEach(function(r){
       var a = document.createElement("a");
-      a.className = "chip";
-      a.href = (SERVERS[nm] && SERVERS[nm].url) || "#";
+      a.className = "chip" + (r.tier === "recommended" ? " srv-rec-chip" : "");
+      a.href = SERVERS[r.name].url;
       a.target = "_blank"; a.rel = "noopener";
-      a.textContent = nm + " ↗";
+      a.title = r.reason;
+      a.textContent = r.name + " ↗ " + r.backend;
       srv.appendChild(a);
     });
     var bench = $("#d-bench"); bench.textContent = "";
@@ -598,6 +671,10 @@
     var wsel = $("#w-server"); wsel.textContent = "";
     wsel.appendChild(new Option("Any inference server", ""));
     Object.keys(SERVERS).forEach(function(n){ wsel.appendChild(new Option(n, n)); });
+    var cs = $("#d-srvcat"); cs.textContent = "";
+    SECTIONS.forEach(function(sec){ cs.appendChild(new Option(sec.label, sec.sec)); });
+    cs.value = state.srvcat || "nvidia";
+    cs.onchange = function(){ state.srvcat = cs.value; if(state.cache[state.selectedId]) renderDetails(state.selectedId); };
     [$("#fuse"), $("#w-use")].forEach(function(sel){
       sel.textContent = "";
       sel.appendChild(new Option(sel.id === "w-use" ? "What do I need?…" : "Any use case", ""));
@@ -642,6 +719,12 @@
       why.textContent = (m.best_for || []).slice(0,3).join(" · ") +
         " · ~" + m.est_vram_gb + " GB est.";
       row.appendChild(why);
+      var rec0 = recommendServers(m, cat)[0];
+      if(rec0){
+        var sug = document.createElement("div"); sug.className = "srv-sug";
+        sug.innerHTML = "→ " + esc(rec0.name) + " <span class=\"badge\">" + esc(rec0.backend) + "</span> <span class=\"hint\">(" + esc(rec0.reason) + ")</span>";
+        row.appendChild(sug);
+      }
       res.appendChild(row);
     });
   }
