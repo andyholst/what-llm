@@ -44,7 +44,7 @@ After that, every PR merge re-deploys automatically; `workflow_dispatch` re-runs
   gpt4all, SGLang; wizard filters by server and suggests one per pick
 - **Search & filters** — name/author/use-case search, hardware-fit mode, type/use-case/
   commercial filters, crawl freshness in the footer
-- **Zero-dependency frontend** — single file, works over http(s) and file://
+- **Bootstrap 5.3 theme** — vendored `vendor/bootstrap.min.css` (no CDN, no build step); single-file app works over http(s) and file://
 
 ## Quickstart
 
