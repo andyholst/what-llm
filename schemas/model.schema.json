@@ -187,15 +187,6 @@
         "macbook": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "16gb",
-            "24gb",
-            "32gb",
-            "48gb",
-            "64gb",
-            "96gb",
-            "128gb"
-          ],
           "properties": {
             "16gb": {
               "type": "boolean"
@@ -203,7 +194,7 @@
             "24gb": {
               "type": "boolean"
             },
-            "32gb": {
+            "36gb": {
               "type": "boolean"
             },
             "48gb": {
@@ -212,28 +203,24 @@
             "64gb": {
               "type": "boolean"
             },
-            "96gb": {
-              "type": "boolean"
-            },
             "128gb": {
               "type": "boolean"
             }
-          }
+          },
+          "required": [
+            "16gb",
+            "24gb",
+            "36gb",
+            "48gb",
+            "64gb",
+            "128gb"
+          ]
         },
         "mac_studio": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "32gb",
-            "64gb",
-            "96gb",
-            "128gb",
-            "192gb",
-            "256gb",
-            "512gb"
-          ],
           "properties": {
-            "32gb": {
+            "36gb": {
               "type": "boolean"
             },
             "64gb": {
@@ -248,13 +235,22 @@
             "192gb": {
               "type": "boolean"
             },
-            "256gb": {
+            "384gb": {
               "type": "boolean"
             },
             "512gb": {
               "type": "boolean"
             }
-          }
+          },
+          "required": [
+            "36gb",
+            "64gb",
+            "96gb",
+            "128gb",
+            "192gb",
+            "384gb",
+            "512gb"
+          ]
         },
         "dgx": {
           "type": "object",
@@ -381,6 +377,9 @@
             "32gb": {
               "type": "boolean"
             },
+            "36gb": {
+              "type": "boolean"
+            },
             "48gb": {
               "type": "boolean"
             },
@@ -395,6 +394,7 @@
             "16gb",
             "24gb",
             "32gb",
+            "36gb",
             "48gb",
             "64gb",
             "128gb"

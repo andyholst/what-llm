@@ -39,10 +39,13 @@ INTEL_ARC_TIERS = [8, 10, 12, 16]
 SNAPDRAGON_TIERS = [16, 32, 64]
 # Snapdragon X Elite/X2 unified memory (16/32/64 GB shipped) — CPU/Adreno Vulkan;
 # treated like macOS unified memory (usable = tier - MAC_SYSTEM_GB)
-MACBOOK_TIERS = [16, 24, 32, 48, 64, 96, 128]        # M5 Max tops out at 128 GB (verified, Apple)
-MAC_STUDIO_TIERS = [32, 64, 96, 128, 192, 256, 512]  # M4 Max 64, M3 Ultra up to 512 GB
-MAC_MINI_TIERS = [16, 24, 32, 48, 64, 128]
-# Mac Mini: M4 16, M4 Pro 24/48, M4 Max 32/64/128 GB (verified Apple spec pages)
+MACBOOK_TIERS = [16, 24, 36, 48, 64, 128]
+# MacBook Pro current gen (M5 Pro/M5 Max, support.apple.com/en-us/126318):
+# M4 16, M4/M5 Pro 24/48, M5 Max 36 base -> 48/64/128. M3-era 32/96 removed.
+MAC_STUDIO_TIERS = [36, 64, 96, 128, 192, 384, 512]
+# Mac Studio: M4 Max 36/64/128, M3 Ultra 96/192/384/512. M2-era 32/256 removed.
+MAC_MINI_TIERS = [16, 24, 32, 36, 48, 64, 128]
+# Mac Mini: M4 16/24/32, M4 Pro 24/48, M4 Max 36/64/128 (verified Apple spec pages)
 MAC_PRO_TIERS = [192, 384, 512]
 # Mac Pro: M3 Ultra configs 192/384/512 GB unified (verified Apple/industry)
 DGX_TIERS = [640, 1128, 1440]                        # DGX A100/H100 640, H200 1128, B200 1440 GB total

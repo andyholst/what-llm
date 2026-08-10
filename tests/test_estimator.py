@@ -68,7 +68,7 @@ def test_flags_8b_fits_8gb():
     assert hw["amd"]["8gb"] is True
     assert hw["macbook"]["16gb"] is True    # usable 12.5; 6.21+1.5=7.71 <= 12.5
     assert hw["macbook"]["128gb"] is True
-    assert hw["mac_studio"]["32gb"] is True  # usable 28.5
+    assert hw["mac_studio"]["36gb"] is True  # usable 32.5
     assert hw["mac_studio"]["512gb"] is True
     assert hw["dgx"]["640gb"] is True
     # 8.03B > 4B -> phones fail-closed despite fitting memory-wise
@@ -88,11 +88,11 @@ def test_flags_70b_macbook_64_plus():
                          "48gb": True, "192gb": True}  # W7900 48 GB fits; MI300X too
     # est = 44.5 + 1.3 = 45.8; fit: 45.8 + 1.5 = 47.3
     # MacBook usable = tier - 3.5: 48-3.5=44.5 -> 47.3 > 44.5 grey; 64-3.5=60.5 green
+    assert hw["macbook"]["36gb"] is False
     assert hw["macbook"]["48gb"] is False
     assert hw["macbook"]["64gb"] is True
-    assert hw["macbook"]["96gb"] is True
     assert hw["macbook"]["128gb"] is True
-    assert hw["mac_studio"]["32gb"] is False
+    assert hw["mac_studio"]["36gb"] is False
     assert hw["mac_studio"]["64gb"] is True
     assert hw["mac_studio"]["512gb"] is True
     assert hw["dgx"] == {"640gb": True, "1128gb": True, "1440gb": True}
@@ -102,15 +102,15 @@ def test_flags_70b_macbook_64_plus():
 
 def test_flags_mixtral_moe_contract_math():
     # 46.7B total x 0.612 = 28.58 -> est 29.88; fit: 29.88+1.5=31.38
-    # 32GB MacBook usable = 28.5 -> 31.38 > 28.5: does NOT fit 32GB
+    # 36GB MacBook usable = 32.5 -> 31.38 <= 32.5: FITS (smallest current-gen)
     # 48GB MacBook usable = 44.5 -> fits
     qs = estimator.synthesize_quants(46.7)
     hw = estimator.hardware_flags(46.7, qs)
     assert hw["nvidia"]["24gb"] is False
     assert hw["nvidia"]["48gb"] is True
-    assert hw["macbook"]["32gb"] is False
+    assert hw["macbook"]["36gb"] is True
     assert hw["macbook"]["48gb"] is True
-    assert hw["mac_studio"]["32gb"] is False
+    assert hw["mac_studio"]["36gb"] is True
     assert hw["mac_studio"]["64gb"] is True
     assert hw["dgx"]["640gb"] is True
     assert hw["android"]["8gb"] is False
@@ -125,7 +125,7 @@ def test_flags_extreme_moe_studio_512_fits():
     assert all(not v for v in hw["amd"].values())
     assert all(not v for v in hw["macbook"].values())
     assert hw["mac_studio"]["128gb"] is False
-    assert hw["mac_studio"]["256gb"] is False
+    assert hw["mac_studio"]["384gb"] is False
     assert hw["mac_studio"]["512gb"] is True
     assert hw["dgx"] == {"640gb": True, "1128gb": True, "1440gb": True}
     assert hw["android"]["8gb"] is False
@@ -187,11 +187,12 @@ def test_flags_deepseek_v4_flash_gguf_does_not_fit_macbook_48():
     assert est == 88.2, f"UD-IQ1_M est should be 88.2, got {est}"
     mac = m["hardware"]["macbook"]
     assert mac["48gb"] is False, "48 GB MacBook must NOT fit (89.7 > 44.5 usable)"
-    assert mac["96gb"] is True and mac["128gb"] is True, "96/128 GB MacBooks fit"
+    assert mac["64gb"] is False and mac["128gb"] is True, "only 128 GB MacBook Pro fits (89.7 <= 124.5)"
     assert m["hardware"]["nvidia"]["48gb"] is False, "no consumer NVIDIA fits"
+    assert m["hardware"]["mac_pro"]["192gb"] is True, "Mac Pro 192 fits"
     # recompute independently (contract: est + 1.5 <= tier - 3.5 for Macs)
     assert est + 1.5 > 48 - 3.5
-    assert est + 1.5 <= 96 - 3.5
+    assert est + 1.5 <= 128 - 3.5
 
 def test_flags_nvidia_32gb_5090_tier_exists():
     """RTX 5090 = 32 GB (NVIDIA official) — the tier the user reported missing."""
