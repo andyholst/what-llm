@@ -356,31 +356,32 @@ test('details pane shows "Run locally with" server chips with links (issue #27)'
   dom.window.close();
 });
 
-test('wizard server filter: Ollama keeps GGUF picks, vLLM yields none (all samples GGUF)', async () => {
+test('wizard NEVER shows an inference-server list — only ONE suggested server per pick', async () => {
   const dom = await boot();
   const { window } = dom;
   await waitFor(() => cardCount(window) > 0);
-  const opts = [...window.document.querySelector('#w-server').options].map(o => o.value);
-  assert.ok(opts.includes('llama.cpp') && opts.includes('vLLM') && opts.includes('Ollama'),
-    'server select populated: ' + opts.join(','));
+  assert.ok(!window.document.querySelector('#w-server'), 'no server dropdown in wizard');
   change(window, '#w-hwcat', 'nvidia');
   await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
   change(window, '#w-hwtier', '24');
-  change(window, '#w-server', 'Ollama');
   click(window, '#w-go');
   await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
   [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
     const name = r.querySelector('a').textContent;
     const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
-    assert.ok(m && (m.servers || []).includes('Ollama'), name + ' runs on Ollama');
     assert.ok(m && m.est_vram_gb + 1.5 <= 24, name + ' fits NVIDIA 24GB');
+    const sug = r.querySelector('.srv-sug');
+    assert.ok(sug && sug.textContent.includes('Run with:'), 'row suggests ONE server: ' + name);
+    // exactly one linked server — never a list
+    const links = [...sug.querySelectorAll('a')];
+    assert.ok(links.length === 1, name + ' has exactly one server link, got ' + links.length);
+    assert.ok(links[0].href.startsWith('http'), 'suggestion links out');
+    // single server name, no separator list (no ' · ' chains of servers)
+    const text = sug.textContent;
+    const serverNames = ['llama.cpp', 'Ollama', 'LM Studio', 'koboldcpp', 'Jan', 'vLLM', 'MLX', 'TensorRT-LLM'];
+    const mentioned = serverNames.filter(n => text.includes(n));
+    assert.ok(mentioned.length <= 1, name + ' mentions at most one server: ' + mentioned.join(','));
   });
-  // vLLM: no GGUF sample supports it -> honest no-match guidance
-  change(window, '#w-server', 'vLLM');
-  click(window, '#w-go');
-  await waitFor(() => window.document.querySelector('#w-results').textContent.length > 0);
-  assert.ok(window.document.querySelector('#w-results').textContent.includes('No models fit'),
-    'vLLM filter explains no matches (all samples are GGUF)');
   dom.window.close();
 });
 

@@ -151,7 +151,6 @@
       </select>
       <select id="w-hwtier" class="form-select form-select-sm" style="width:auto" aria-label="Wizard device memory" disabled><option value="">VRAM / RAM…</option></select>
       <select id="w-use" class="form-select form-select-sm" style="width:auto" aria-label="Wizard use case"><option value="">What do I need?…</option></select>
-      <select id="w-server" class="form-select form-select-sm" style="width:auto" aria-label="Wizard inference server"><option value="">Any inference server</option></select>
       <label class="fitbox form-check form-check-inline"><input type="checkbox" class="form-check-input" id="w-commercial"> commercial only</label>
       <button type="button" id="w-go" class="btn btn-primary btn-sm">Show my picks</button>
     </div>
@@ -678,9 +677,6 @@
       (m.best_for || []).forEach(function(uc){ if(seen.indexOf(uc) === -1) seen.push(uc); });
     });
     seen.sort();
-    var wsel = $("#w-server"); wsel.textContent = "";
-    wsel.appendChild(new Option("Any inference server", ""));
-    Object.keys(SERVERS).forEach(function(n){ wsel.appendChild(new Option(n, n)); });
     var cs = $("#d-srvcat"); cs.textContent = "";
     SECTIONS.forEach(function(sec){ cs.appendChild(new Option(sec.label, sec.sec)); });
     cs.value = state.srvcat || "nvidia";
@@ -705,12 +701,9 @@
     var res = $("#w-results"); res.textContent = "";
     if(!cat || !tier){ res.textContent = "Pick your hardware + memory first."; return; }
     var needUse = !!use;
-    var server = $("#w-server").value;
     var picks = state.models.filter(function(m){
       if(needUse && (m.best_for || []).indexOf(use) === -1) return false;
       if($("#w-commercial").checked && m.commercial_ok === false) return false;
-      if(server && (m.servers || []).indexOf(server) === -1) return false;
-      if(server && SERVERS[server] && !SERVERS[server].backends[cat]) return false;
       return fitsFor(m, cat, tier);
     });
     picks.sort(function(a,b){ return b.trending_score - a.trending_score; });
