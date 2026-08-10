@@ -85,16 +85,23 @@
     }
   },
   "profile": {
-    "summary": "google/gemma-3-4b-it: see strengths/weaknesses for what it is good at and where it falls short.",
+    "summary": "Gemma: open Google models, strong at general chat; multilingual on newer versions.",
     "best_for": [
-      "chat"
+      "chat",
+      "reasoning"
     ],
     "strengths": [
-      "Supports up to 32,768 tokens of context"
+      "Supports up to 32,768 tokens of context",
+      "Good general chat quality",
+      "Multilingual in 3.x versions"
     ],
-    "weaknesses": [],
+    "weaknesses": [
+      "Gated card on some versions",
+      "Smaller ecosystem than Llama/Qwen"
+    ],
     "limitations": [
-      "Model card is gated — README not accessible to anonymous crawls"
+      "Model card is gated — README not accessible to anonymous crawls",
+      "Google license terms apply"
     ],
     "provenance": [
       {
@@ -105,6 +112,31 @@
       {
         "claim": "Model card is gated — README not accessible to anonymous crawls",
         "source": "config",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Good general chat quality",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Multilingual in 3.x versions",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated card on some versions",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Smaller ecosystem than Llama/Qwen",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Google license terms apply",
+        "source": "curated",
         "confidence": "medium"
       }
     ]

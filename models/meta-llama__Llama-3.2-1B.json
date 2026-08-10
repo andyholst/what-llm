@@ -85,17 +85,26 @@
     }
   },
   "profile": {
-    "summary": "meta-llama/Llama-3.2-1B: see strengths/weaknesses for what it is good at and where it falls short.",
+    "summary": "Llama: solid general-purpose chat with broad ecosystem support (llama.cpp, vLLM).",
     "best_for": [
-      "chat"
+      "chat",
+      "rag",
+      "agentic"
     ],
     "strengths": [
-      "Supports up to 131,072 tokens of context"
+      "Supports up to 131,072 tokens of context",
+      "Excellent ecosystem and quantization support",
+      "Well-tuned instruct variants"
     ],
-    "weaknesses": [],
+    "weaknesses": [
+      "Benchmarks often matched by newer smaller models",
+      "Gated card — README not anonymous-accessible"
+    ],
     "limitations": [
       "Model card is gated — README not accessible to anonymous crawls",
-      "Base (pre-instruct) model — use the instruct/chat variant for conversation"
+      "Base (pre-instruct) model — use the instruct/chat variant for conversation",
+      "Llama community license: commercial use ok but MAU >700M needs Meta approval",
+      "Gated model card (login required for files)"
     ],
     "provenance": [
       {
@@ -112,6 +121,36 @@
         "claim": "Base (pre-instruct) model — use the instruct/chat variant for conversation",
         "source": "curated",
         "confidence": "high"
+      },
+      {
+        "claim": "Excellent ecosystem and quantization support",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Well-tuned instruct variants",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Benchmarks often matched by newer smaller models",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated card — README not anonymous-accessible",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Llama community license: commercial use ok but MAU >700M needs Meta approval",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated model card (login required for files)",
+        "source": "curated",
+        "confidence": "medium"
       }
     ]
   },

@@ -246,18 +246,14 @@ test('wizard picks fit the chosen hardware and use case', async () => {
   dom.window.close();
 });
 
-test('wizard with no match explains why', async () => {
+test('wizard explains when input is incomplete', async () => {
   const dom = await boot();
   const { window } = dom;
   await waitFor(() => cardCount(window) > 0);
-  change(window, '#w-hwcat', 'iphone');
-  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
-  change(window, '#w-hwtier', '8');
-  change(window, '#w-use', 'agentic');   // no sample model is agentic -> guaranteed no match
-  click(window, '#w-go');
+  click(window, '#w-go');   // no hardware selected yet
   await waitFor(() => window.document.querySelector('#w-results').textContent.length > 0);
-  assert.ok(window.document.querySelector('#w-results').textContent.includes('No models fit'),
-    'no-match guidance shown');
+  assert.ok(window.document.querySelector('#w-results').textContent.includes('Pick your hardware'),
+    'guidance shown when hardware missing');
   dom.window.close();
 });
 
@@ -276,5 +272,34 @@ test('side-by-side compare table shows selected models', async () => {
   assert.equal(firstRow.querySelector('th').textContent, 'Model');
   assert.equal(firstRow.querySelectorAll('td').length, 2, 'two models compared');
   assert.ok(body.querySelectorAll('tr').length >= 5, 'multiple comparison rows');
+  dom.window.close();
+});
+
+test('MacBook 48GB wizard NEVER picks DeepSeek-V4-Flash GGUF (parity with Python calc)', async () => {
+  const dom = await boot();
+  const { window } = dom;
+  await waitFor(() => cardCount(window) > 0);
+  // the GGUF mirror model exists in the dataset
+  const ds = window.MODELS_INDEX.find(m => m.id.includes('DeepSeek-V4-Flash-0731-GGUF'));
+  assert.ok(ds, 'DeepSeek-V4-Flash GGUF sample present');
+  assert.ok(ds.est_vram_gb + 1.5 > 48 - 3.5, 'sample calc: 88.2 + 1.5 > 44.5 usable');
+  // no junk use case pollutes the dropdown
+  const uses = [...window.document.querySelector('#w-use').options].map(o => o.value);
+  assert.ok(!uses.includes('local-inference'), 'no local-inference junk in dropdown');
+  // wizard for MacBook 48 with the reasoning use case
+  change(window, '#w-hwcat', 'macbook');
+  await waitFor(() => !window.document.querySelector('#w-hwtier').disabled);
+  change(window, '#w-hwtier', '48');
+  change(window, '#w-use', 'reasoning');
+  click(window, '#w-go');
+  await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  const rows = [...window.document.querySelectorAll('#w-results .wrow')];
+  const names = rows.map(r => r.querySelector('a').textContent);
+  assert.ok(!names.some(n => n.includes('DeepSeek V4 Flash')), 'DeepSeek V4 Flash must not be picked for 48GB Mac: ' + names.join(' | '));
+  rows.forEach(r => {
+    const name = r.querySelector('a').textContent;
+    const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
+    assert.ok(m && m.est_vram_gb + 1.5 <= 48 - 3.5, name + ' actually fits MacBook 48GB');
+  });
   dom.window.close();
 });

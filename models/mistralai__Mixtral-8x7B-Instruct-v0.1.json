@@ -79,22 +79,22 @@
     }
   },
   "profile": {
-    "summary": "Mistral: efficient chat with strong reasoning-per-parameter; Apache/MIT friendly.",
+    "summary": "Mixtral: sparse MoE — near-larger-model quality at lower active-parameter cost.",
     "best_for": [
       "chat",
-      "reasoning",
-      "rag"
+      "reasoning"
     ],
     "strengths": [
       "Supports up to 32,768 tokens of context",
-      "Strong quality per parameter",
-      "Permissive licenses on many variants"
+      "MoE efficiency: strong quality per active parameter",
+      "Good multilingual support"
     ],
     "weaknesses": [
-      "Smaller context on some variants (8k)",
-      "Sliding-window attention quirks on some tools"
+      "High TOTAL parameter count — needs lots of VRAM/RAM (all experts resident)"
     ],
-    "limitations": [],
+    "limitations": [
+      "32GB-class machines are borderline at Q4 (see hardware flags)"
+    ],
     "provenance": [
       {
         "claim": "Supports up to 32,768 tokens of context",
@@ -102,22 +102,22 @@
         "confidence": "high"
       },
       {
-        "claim": "Strong quality per parameter",
+        "claim": "MoE efficiency: strong quality per active parameter",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Permissive licenses on many variants",
+        "claim": "Good multilingual support",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Smaller context on some variants (8k)",
+        "claim": "High TOTAL parameter count — needs lots of VRAM/RAM (all experts resident)",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Sliding-window attention quirks on some tools",
+        "claim": "32GB-class machines are borderline at Q4 (see hardware flags)",
         "source": "curated",
         "confidence": "medium"
       }

@@ -91,21 +91,23 @@
     }
   },
   "profile": {
-    "summary": "GGUF/quantized mirror (often UD quants) for local inference.",
+    "summary": "DeepSeek: frontier-scale reasoning and coding MoE models.",
     "best_for": [
-      "local-inference"
+      "reasoning",
+      "coding"
     ],
     "strengths": [
       "Supports up to 131,072 tokens of context",
-      "Aggressive dynamic quants shrink file size",
-      "Real split-file sizes exposed"
+      "Frontier reasoning and math",
+      "MoE design keeps active params low"
     ],
     "weaknesses": [
-      "Very low-bit quants trade quality",
-      "Quality follows the upstream model"
+      "Very large total parameter count — datacenter class",
+      "Specialized tooling for some variants"
     ],
     "limitations": [
-      "Check the upstream model card for license/limitations"
+      "Consumer GPUs rarely fit even the smallest quants",
+      "Gated on some variants"
     ],
     "provenance": [
       {
@@ -114,27 +116,32 @@
         "confidence": "high"
       },
       {
-        "claim": "Aggressive dynamic quants shrink file size",
+        "claim": "Frontier reasoning and math",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Real split-file sizes exposed",
+        "claim": "MoE design keeps active params low",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Very low-bit quants trade quality",
+        "claim": "Very large total parameter count — datacenter class",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Quality follows the upstream model",
+        "claim": "Specialized tooling for some variants",
         "source": "curated",
         "confidence": "medium"
       },
       {
-        "claim": "Check the upstream model card for license/limitations",
+        "claim": "Consumer GPUs rarely fit even the smallest quants",
+        "source": "curated",
+        "confidence": "medium"
+      },
+      {
+        "claim": "Gated on some variants",
         "source": "curated",
         "confidence": "medium"
       }

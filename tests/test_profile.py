@@ -47,8 +47,25 @@ def test_infer_use_cases_keywords():
 
 def test_family_for():
     assert profile.family_for("Qwen/Qwen3-8B") == "qwen"
-    assert profile.family_for("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF") == "bartowski"
+    # GGUF mirrors inherit the UPSTREAM family, not the quantization org
+    assert profile.family_for("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF") == "llama"
+    assert profile.family_for("unsloth/DeepSeek-V4-Flash-0731-GGUF") == "deepseek"
+    assert profile.family_for("cognitivecomputations/dolphin-2.9-llama-3.1-8b") == "llama"
+    assert profile.family_for("mistralai/Mixtral-8x7B-Instruct-v0.1") == "mixtral"
     assert profile.family_for("unknown-org/whatever") is None
+
+
+def test_gguf_mirror_profile_inherits_upstream_use_cases():
+    """bartowski/unsloth GGUF mirrors must surface the upstream model's use cases —
+    never a junk 'local-inference' bucket (issue: wizard use-case dropdown)."""
+    p = profile.build_profile("bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+                              family="llama", model_type="instruct")
+    assert "chat" in p["best_for"] and "rag" in p["best_for"]  # llama family curated set
+    p2 = profile.build_profile("unsloth/DeepSeek-V4-Flash-0731-GGUF",
+                               family="deepseek", model_type="reasoner")
+    assert "reasoning" in p2["best_for"] and "coding" in p2["best_for"]
+    for prof in (p, p2):
+        assert "local-inference" not in prof["best_for"]
 
 
 def test_evals_become_strength_with_provenance():
