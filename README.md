@@ -37,6 +37,11 @@ After that, every PR merge re-deploys automatically; `workflow_dispatch` re-runs
   MacBook / Mac Studio (Metal), DGX, Android, iPhone — recomputed live from the
   selected quant (est VRAM + 1.5 GB headroom vs tier), with backend labels
   (CUDA / ROCm / Metal / SYCL+Vulkan) on every section
+- **Run locally with → recommended server** — for every (model × hardware) pair the
+  site *suggests* the best inference server (Ollama = easiest, LM Studio = GUI,
+  MLX = Apple-native, vLLM = throughput, TensorRT-LLM = max NVIDIA) with reasons and
+  backend badges; 14-server catalog incl. llama-server, Jan, oobabooga, llamafile,
+  gpt4all, SGLang; wizard filters by server and suggests one per pick
 - **Search & filters** — name/author/use-case search, hardware-fit mode, type/use-case/
   commercial filters, crawl freshness in the footer
 - **Zero-dependency frontend** — single file, works over http(s) and file://
