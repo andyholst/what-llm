@@ -356,7 +356,7 @@ test('details pane shows "Run locally with" server chips with links (issue #27)'
   dom.window.close();
 });
 
-test('wizard NEVER shows an inference-server list — only ONE suggested server per pick', async () => {
+test('wizard: no dropdown, no "best server for" claim — each pick lists ALL servers that can run it on the chosen hardware', async () => {
   const dom = await boot();
   const { window } = dom;
   await waitFor(() => cardCount(window) > 0);
@@ -366,21 +366,18 @@ test('wizard NEVER shows an inference-server list — only ONE suggested server 
   change(window, '#w-hwtier', '24');
   click(window, '#w-go');
   await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
+  assert.ok(!window.document.querySelector('#w-srv-summary'), 'no misleading best-server claim');
   [...window.document.querySelectorAll('#w-results .wrow')].forEach(r => {
     const name = r.querySelector('a').textContent;
     const m = window.MODELS_INDEX.find(x => name.startsWith(x.name));
     assert.ok(m && m.est_vram_gb + 1.5 <= 24, name + ' fits NVIDIA 24GB');
     const sug = r.querySelector('.srv-sug');
-    assert.ok(sug && sug.textContent.includes('Run with:'), 'row suggests ONE server: ' + name);
-    // exactly one linked server — never a list
+    assert.ok(sug && sug.textContent.includes('Run with:'), 'row names servers: ' + name);
     const links = [...sug.querySelectorAll('a')];
-    assert.ok(links.length === 1, name + ' has exactly one server link, got ' + links.length);
-    assert.ok(links[0].href.startsWith('http'), 'suggestion links out');
-    // single server name, no separator list (no ' · ' chains of servers)
-    const text = sug.textContent;
-    const serverNames = ['llama.cpp', 'Ollama', 'LM Studio', 'koboldcpp', 'Jan', 'vLLM', 'MLX', 'TensorRT-LLM'];
-    const mentioned = serverNames.filter(n => text.includes(n));
-    assert.ok(mentioned.length <= 1, name + ' mentions at most one server: ' + mentioned.join(','));
+    assert.ok(links.length >= 2, name + ' lists ALL runnable servers (got ' + links.length + ')');
+    links.forEach(a => assert.ok(a.href.startsWith('http'), 'server chip links out: ' + a.href));
+    assert.ok(!sug.textContent.includes('MLX'), 'no MLX on NVIDIA');
+    assert.ok(!sug.textContent.includes('TensorRT'), 'no TensorRT-LLM for GGUF');
   });
   dom.window.close();
 });
@@ -445,7 +442,8 @@ test('Bootstrap theme: vendored stylesheet linked + wizard shows best-server sum
   click(window, '#w-go');
   await waitFor(() => window.document.querySelectorAll('#w-results .wrow').length > 0);
   const sum = window.document.querySelector('#w-srv-summary');
-  assert.ok(sum && sum.textContent.includes('Best server'), 'wizard best-server summary');
-  assert.ok(sum.textContent.includes('Ollama'), 'summary recommends Ollama for NVIDIA: ' + sum.textContent.slice(0,80));
+  assert.ok(!sum, 'no best-server claim in wizard');
+  const styles = [...window.document.querySelectorAll('style')].map(st => st.textContent).join('');
+  assert.ok(styles.includes('.pcols') && styles.includes('.cmptable'), 'Quartz overrides in style block');
   dom.window.close();
 });
