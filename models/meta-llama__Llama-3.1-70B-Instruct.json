@@ -33,14 +33,32 @@
       "8gb": false,
       "12gb": false,
       "16gb": false,
+      "20gb": false,
       "24gb": false,
-      "48gb": true
+      "32gb": false,
+      "48gb": true,
+      "96gb": true
     },
     "amd": {
       "8gb": false,
       "12gb": false,
       "16gb": false,
-      "24gb": false
+      "20gb": false,
+      "24gb": false,
+      "32gb": false,
+      "48gb": true,
+      "192gb": true
+    },
+    "intel_arc": {
+      "8gb": false,
+      "10gb": false,
+      "12gb": false,
+      "16gb": false
+    },
+    "snapdragon": {
+      "16gb": false,
+      "32gb": false,
+      "64gb": true
     },
     "macbook": {
       "16gb": false,
@@ -157,5 +175,5 @@
   ],
   "knowledge_cutoff": "2023-12",
   "benchmarks": [],
-  "last_updated": "2026-08-09"
+  "last_updated": "2026-08-10"
 }

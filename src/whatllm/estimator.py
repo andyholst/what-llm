@@ -26,8 +26,19 @@ MAC_SYSTEM_GB = 3.5         # unified memory reserved for macOS
 MOBILE_BUDGET_GB = 8.0      # phone-class device budget
 MOBILE_MAX_PARAMS_B = 4.0   # practical only for <=4B models
 
-NVIDIA_TIERS = [8, 12, 16, 24, 48]
-AMD_TIERS = [8, 12, 16, 24]
+NVIDIA_TIERS = [8, 12, 16, 20, 24, 32, 48, 96]
+# anchors: RTX 5060/4060 (8), 5070/4070 (12), 5080/4080/5070 Ti (16),
+# RTX 4000 Ada (20, workstation), 4090 (24), RTX 5090 (32, flagship),
+# RTX 6000 Ada (48), RTX PRO 6000 Blackwell (96) — verified NVIDIA official 2026-08
+AMD_TIERS = [8, 12, 16, 20, 24, 32, 48, 192]
+# anchors: RX 7600/9060 (8), RX 7700 XT (12), RX 7800 XT/9070 (16), RX 7900 XT (20),
+# RX 7900 XTX (24), Radeon PRO W7800 (32), W7900 (48), Instinct MI300X (192);
+# ROCm 7.x supports RX 9000/7000 + PRO — verified AMD official 2026-08
+INTEL_ARC_TIERS = [8, 10, 12, 16]
+# Arc A750 (8), B570 (10), B580 (12), A770 (16) — SYCL/oneAPI + Vulkan backends
+SNAPDRAGON_TIERS = [16, 32, 64]
+# Snapdragon X Elite/X2 unified memory (16/32/64 GB shipped) — CPU/Adreno Vulkan;
+# treated like macOS unified memory (usable = tier - MAC_SYSTEM_GB)
 MACBOOK_TIERS = [16, 24, 32, 48, 64, 96, 128]        # M5 Max tops out at 128 GB (verified, Apple)
 MAC_STUDIO_TIERS = [32, 64, 96, 128, 192, 256, 512]  # M4 Max 64, M3 Ultra up to 512 GB
 DGX_TIERS = [640, 1128, 1440]                        # DGX A100/H100 640, H200 1128, B200 1440 GB total
@@ -135,6 +146,8 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
 
     nvidia = _tier_flags(est, NVIDIA_TIERS)
     amd = _tier_flags(est, AMD_TIERS)
+    intel_arc = _tier_flags(est, INTEL_ARC_TIERS)
+    snapdragon = _mac_flags(est, SNAPDRAGON_TIERS)   # unified memory like macOS
     macbook = _mac_flags(est, MACBOOK_TIERS)
     mac_studio = _mac_flags(est, MAC_STUDIO_TIERS)
     dgx = _tier_flags(est, DGX_TIERS)
@@ -142,7 +155,8 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
     iphone = _phone_flags(params_b, est, min_est, IPHONE_TIERS, "iPhone")
 
     consumer_any = (
-        any(nvidia.values()) or any(amd.values()) or any(macbook.values())
+        any(nvidia.values()) or any(amd.values()) or any(intel_arc.values())
+        or any(snapdragon.values()) or any(macbook.values())
         or any(mac_studio.values()) or any(android["boxes"].values())
         or any(iphone["boxes"].values())
     )
@@ -154,6 +168,8 @@ def hardware_flags(params_b: float, quants: list[dict]) -> dict:
     return {
         "nvidia": nvidia,
         "amd": amd,
+        "intel_arc": intel_arc,
+        "snapdragon": snapdragon,
         "macbook": macbook,
         "mac_studio": mac_studio,
         "dgx": dgx,

@@ -6,172 +6,517 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "id", "name", "author", "parameters_b", "architecture", "pipeline_tag",
-    "hf_url", "trending_score", "downloads", "quants", "hardware",
-    "profile", "license", "commercial_ok", "context_window", "model_type",
-    "languages", "knowledge_cutoff", "benchmarks", "last_updated"
+    "id",
+    "name",
+    "author",
+    "parameters_b",
+    "architecture",
+    "pipeline_tag",
+    "hf_url",
+    "trending_score",
+    "downloads",
+    "quants",
+    "hardware",
+    "profile",
+    "license",
+    "commercial_ok",
+    "context_window",
+    "model_type",
+    "languages",
+    "knowledge_cutoff",
+    "benchmarks",
+    "last_updated"
   ],
   "properties": {
-    "id": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
-    "name": { "type": "string", "minLength": 1 },
-    "author": { "type": "string", "minLength": 1 },
-    "parameters_b": { "type": "number", "exclusiveMinimum": 0 },
-    "architecture": { "enum": ["dense", "moe"] },
-    "pipeline_tag": { "type": "string", "minLength": 1 },
-    "hf_url": { "type": "string", "pattern": "^https://huggingface\\.co/[^/]+/[^/]+/?$" },
-    "trending_score": { "type": "number", "minimum": 0 },
-    "downloads": { "type": "integer", "minimum": 0 },
+    "id": {
+      "type": "string",
+      "pattern": "^[^/]+/[^/]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameters_b": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "architecture": {
+      "enum": [
+        "dense",
+        "moe"
+      ]
+    },
+    "pipeline_tag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hf_url": {
+      "type": "string",
+      "pattern": "^https://huggingface\\.co/[^/]+/[^/]+/?$"
+    },
+    "trending_score": {
+      "type": "number",
+      "minimum": 0
+    },
+    "downloads": {
+      "type": "integer",
+      "minimum": 0
+    },
     "quants": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "size_gb", "estimated_vram_gb", "notes"],
+        "required": [
+          "name",
+          "size_gb",
+          "estimated_vram_gb",
+          "notes"
+        ],
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "size_gb": { "type": "number", "exclusiveMinimum": 0 },
-          "estimated_vram_gb": { "type": "number", "exclusiveMinimum": 0 },
-          "notes": { "type": "string" }
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size_gb": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "estimated_vram_gb": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "notes": {
+            "type": "string"
+          }
         }
       }
     },
     "hardware": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["nvidia", "amd", "macbook", "mac_studio", "dgx", "android", "iphone"],
+      "required": [
+        "nvidia",
+        "amd",
+        "macbook",
+        "mac_studio",
+        "dgx",
+        "android",
+        "iphone"
+      ],
       "properties": {
         "nvidia": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["8gb", "12gb", "16gb", "24gb", "48gb"],
+          "required": [
+            "8gb",
+            "12gb",
+            "16gb",
+            "24gb",
+            "48gb"
+          ],
           "properties": {
-            "8gb": { "type": "boolean" },
-            "12gb": { "type": "boolean" },
-            "16gb": { "type": "boolean" },
-            "24gb": { "type": "boolean" },
-            "48gb": { "type": "boolean" }
+            "8gb": {
+              "type": "boolean"
+            },
+            "12gb": {
+              "type": "boolean"
+            },
+            "16gb": {
+              "type": "boolean"
+            },
+            "20gb": {
+              "type": "boolean"
+            },
+            "24gb": {
+              "type": "boolean"
+            },
+            "32gb": {
+              "type": "boolean"
+            },
+            "48gb": {
+              "type": "boolean"
+            },
+            "96gb": {
+              "type": "boolean"
+            }
           }
         },
         "amd": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["8gb", "12gb", "16gb", "24gb"],
+          "required": [
+            "8gb",
+            "12gb",
+            "16gb",
+            "24gb"
+          ],
           "properties": {
-            "8gb": { "type": "boolean" },
-            "12gb": { "type": "boolean" },
-            "16gb": { "type": "boolean" },
-            "24gb": { "type": "boolean" }
+            "8gb": {
+              "type": "boolean"
+            },
+            "12gb": {
+              "type": "boolean"
+            },
+            "16gb": {
+              "type": "boolean"
+            },
+            "20gb": {
+              "type": "boolean"
+            },
+            "24gb": {
+              "type": "boolean"
+            },
+            "32gb": {
+              "type": "boolean"
+            },
+            "48gb": {
+              "type": "boolean"
+            },
+            "192gb": {
+              "type": "boolean"
+            }
           }
         },
         "macbook": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["16gb", "24gb", "32gb", "48gb", "64gb", "96gb", "128gb"],
+          "required": [
+            "16gb",
+            "24gb",
+            "32gb",
+            "48gb",
+            "64gb",
+            "96gb",
+            "128gb"
+          ],
           "properties": {
-            "16gb": { "type": "boolean" },
-            "24gb": { "type": "boolean" },
-            "32gb": { "type": "boolean" },
-            "48gb": { "type": "boolean" },
-            "64gb": { "type": "boolean" },
-            "96gb": { "type": "boolean" },
-            "128gb": { "type": "boolean" }
+            "16gb": {
+              "type": "boolean"
+            },
+            "24gb": {
+              "type": "boolean"
+            },
+            "32gb": {
+              "type": "boolean"
+            },
+            "48gb": {
+              "type": "boolean"
+            },
+            "64gb": {
+              "type": "boolean"
+            },
+            "96gb": {
+              "type": "boolean"
+            },
+            "128gb": {
+              "type": "boolean"
+            }
           }
         },
         "mac_studio": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["32gb", "64gb", "96gb", "128gb", "192gb", "256gb", "512gb"],
+          "required": [
+            "32gb",
+            "64gb",
+            "96gb",
+            "128gb",
+            "192gb",
+            "256gb",
+            "512gb"
+          ],
           "properties": {
-            "32gb": { "type": "boolean" },
-            "64gb": { "type": "boolean" },
-            "96gb": { "type": "boolean" },
-            "128gb": { "type": "boolean" },
-            "192gb": { "type": "boolean" },
-            "256gb": { "type": "boolean" },
-            "512gb": { "type": "boolean" }
+            "32gb": {
+              "type": "boolean"
+            },
+            "64gb": {
+              "type": "boolean"
+            },
+            "96gb": {
+              "type": "boolean"
+            },
+            "128gb": {
+              "type": "boolean"
+            },
+            "192gb": {
+              "type": "boolean"
+            },
+            "256gb": {
+              "type": "boolean"
+            },
+            "512gb": {
+              "type": "boolean"
+            }
           }
         },
         "dgx": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["640gb", "1128gb", "1440gb"],
+          "required": [
+            "640gb",
+            "1128gb",
+            "1440gb"
+          ],
           "properties": {
-            "640gb": { "type": "boolean" },
-            "1128gb": { "type": "boolean" },
-            "1440gb": { "type": "boolean" }
+            "640gb": {
+              "type": "boolean"
+            },
+            "1128gb": {
+              "type": "boolean"
+            },
+            "1440gb": {
+              "type": "boolean"
+            }
           }
         },
         "android": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["8gb", "12gb", "16gb", "24gb", "note"],
+          "required": [
+            "8gb",
+            "12gb",
+            "16gb",
+            "24gb",
+            "note"
+          ],
           "properties": {
-            "8gb": { "type": "boolean" },
-            "12gb": { "type": "boolean" },
-            "16gb": { "type": "boolean" },
-            "24gb": { "type": "boolean" },
-            "note": { "type": "string" }
+            "8gb": {
+              "type": "boolean"
+            },
+            "12gb": {
+              "type": "boolean"
+            },
+            "16gb": {
+              "type": "boolean"
+            },
+            "24gb": {
+              "type": "boolean"
+            },
+            "note": {
+              "type": "string"
+            }
           }
         },
         "iphone": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["8gb", "12gb", "note"],
+          "required": [
+            "8gb",
+            "12gb",
+            "note"
+          ],
           "properties": {
-            "8gb": { "type": "boolean" },
-            "12gb": { "type": "boolean" },
-            "note": { "type": "string" }
+            "8gb": {
+              "type": "boolean"
+            },
+            "12gb": {
+              "type": "boolean"
+            },
+            "note": {
+              "type": "string"
+            }
           }
+        },
+        "intel_arc": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "8gb": {
+              "type": "boolean"
+            },
+            "10gb": {
+              "type": "boolean"
+            },
+            "12gb": {
+              "type": "boolean"
+            },
+            "16gb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "8gb",
+            "10gb",
+            "12gb",
+            "16gb"
+          ]
+        },
+        "snapdragon": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "16gb": {
+              "type": "boolean"
+            },
+            "32gb": {
+              "type": "boolean"
+            },
+            "64gb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "16gb",
+            "32gb",
+            "64gb"
+          ]
         }
       }
     },
     "profile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["summary", "best_for", "strengths", "weaknesses", "limitations", "provenance"],
+      "required": [
+        "summary",
+        "best_for",
+        "strengths",
+        "weaknesses",
+        "limitations",
+        "provenance"
+      ],
       "properties": {
-        "summary": {"type": "string", "minLength": 1},
-        "best_for": {"type": "array", "items": {"type": "string"}},
-        "strengths": {"type": "array", "items": {"type": "string"}},
-        "weaknesses": {"type": "array", "items": {"type": "string"}},
-        "limitations": {"type": "array", "items": {"type": "string"}},
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "best_for": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strengths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weaknesses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "provenance": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["claim", "source"],
+            "required": [
+              "claim",
+              "source"
+            ],
             "properties": {
-              "claim": {"type": "string", "minLength": 1},
-              "source": {"enum": ["readme", "evals", "config", "tags", "curated"]},
-              "confidence": {"enum": ["high", "medium", "low"]}
+              "claim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "enum": [
+                  "readme",
+                  "evals",
+                  "config",
+                  "tags",
+                  "curated"
+                ]
+              },
+              "confidence": {
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              }
             }
           }
         }
       }
     },
-    "license": {"type": "string"},
-    "commercial_ok": {"type": "boolean"},
-    "context_window": {"type": ["integer", "null"], "minimum": 0},
-    "model_type": {"enum": ["base", "instruct", "chat", "reasoner", "vision"]},
-    "languages": {"type": "array", "items": {"type": "string"}},
-    "knowledge_cutoff": {"type": ["string", "null"]},
+    "license": {
+      "type": "string"
+    },
+    "commercial_ok": {
+      "type": "boolean"
+    },
+    "context_window": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "model_type": {
+      "enum": [
+        "base",
+        "instruct",
+        "chat",
+        "reasoner",
+        "vision"
+      ]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "knowledge_cutoff": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "benchmarks": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["dataset", "value", "verified"],
+        "required": [
+          "dataset",
+          "value",
+          "verified"
+        ],
         "properties": {
-          "dataset": {"type": "string", "minLength": 1},
-          "value": {"type": "number"},
-          "verified": {"type": "boolean"},
-          "date": {"type": ["string", "null"]},
-          "source": {"type": ["string", "null"]}
+          "dataset": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "number"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
-    "last_updated": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+    "last_updated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    }
   }
 }
