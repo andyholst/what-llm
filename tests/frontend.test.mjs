@@ -99,8 +99,8 @@ test('selecting a model renders 7 hardware sections with correct box counts', as
   assert.equal(window.document.querySelectorAll('#hw-amd .box').length, 8);
   assert.equal(window.document.querySelectorAll('#hw-intel_arc .box').length, 4);
   assert.equal(window.document.querySelectorAll('#hw-snapdragon .box').length, 3);
-  assert.equal(window.document.querySelectorAll('#hw-macbook .box').length, 7);
-  assert.equal(window.document.querySelectorAll('#hw-mac_mini .box').length, 6);
+  assert.equal(window.document.querySelectorAll('#hw-macbook .box').length, 6);
+  assert.equal(window.document.querySelectorAll('#hw-mac_mini .box').length, 7);
   assert.equal(window.document.querySelectorAll('#hw-mac_studio .box').length, 7);
   assert.equal(window.document.querySelectorAll('#hw-mac_pro .box').length, 3);
   assert.equal(window.document.querySelectorAll('#hw-dgx .box').length, 3);
