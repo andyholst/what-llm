@@ -146,6 +146,7 @@
       </select>
       <select id="w-hwtier" aria-label="Wizard device memory" disabled><option value="">VRAM / RAM…</option></select>
       <select id="w-use" aria-label="Wizard use case"><option value="">What do I need?…</option></select>
+      <select id="w-server" aria-label="Wizard inference server"><option value="">Any inference server</option></select>
       <label class="fitbox"><input type="checkbox" id="w-commercial"> commercial only</label>
       <button type="button" id="w-go">Show my picks</button>
     </div>
@@ -183,6 +184,10 @@
         </div>
         <div class="hint" id="d-bench"></div>
       </div>
+      <div class="profile" id="d-servers-block">
+        <h3>Run locally with</h3>
+        <div class="chips" id="d-servers" role="group" aria-label="Inference servers"></div>
+      </div>
     </div>
   </section>
 
@@ -207,7 +212,7 @@
     query: "", sort: "trending", models: [], selectedId: null, selectedQuant: 0,
     cache: {}, bundleInjected: false, updated: "",
     hwcat: "", hwtier: "", hwonly: false, ftype: "", fuse: "", fcommercial: false,
-    crawledAt: null, compare: []
+    crawledAt: null, compare: [], wserver: ""
   };
 
   var TIERS = {
@@ -237,6 +242,22 @@
     {sec:"iphone", label:"iPhone (CPU)"}
   ];
   var MAC_CATS = {macbook: true, mac_studio: true, snapdragon: true};
+  // inference-server catalog (inference-server-catalog, issue #27) — mirrors
+  // src/whatllm/servers.py; backends are booleans per hardware category
+  var SERVERS = {
+    "llama.cpp": {url: "https://github.com/ggml-org/llama.cpp",
+      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
+    "Ollama": {url: "https://ollama.com",
+      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
+    "vLLM": {url: "https://docs.vllm.ai",
+      backends: {nvidia:1, amd:1, intel_arc:1, dgx:1}},
+    "LM Studio": {url: "https://lmstudio.ai",
+      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
+    "koboldcpp": {url: "https://github.com/LostRuins/koboldcpp",
+      backends: {nvidia:1, amd:1, macbook:1, mac_studio:1, intel_arc:1, snapdragon:1, dgx:1}},
+    "TGI": {url: "https://huggingface.co/docs/text-generation-inference",
+      backends: {nvidia:1, amd:1, dgx:1}}
+  };
   var PHONE_CATS = {android: true, iphone: true};
   var HEADROOM = 1.5, MAC_SYS = 3.5;
 
@@ -551,6 +572,15 @@
     fill("#d-strengths", prof.strengths);
     fill("#d-weaknesses", prof.weaknesses);
     fill("#d-limitations", prof.limitations);
+    var srv = $("#d-servers"); srv.textContent = "";
+    (m.servers || []).forEach(function(nm){
+      var a = document.createElement("a");
+      a.className = "chip";
+      a.href = (SERVERS[nm] && SERVERS[nm].url) || "#";
+      a.target = "_blank"; a.rel = "noopener";
+      a.textContent = nm + " ↗";
+      srv.appendChild(a);
+    });
     var bench = $("#d-bench"); bench.textContent = "";
     if(m.benchmarks && m.benchmarks.length){
       bench.textContent = "Benchmarks: " + m.benchmarks.map(function(b){
@@ -565,6 +595,9 @@
       (m.best_for || []).forEach(function(uc){ if(seen.indexOf(uc) === -1) seen.push(uc); });
     });
     seen.sort();
+    var wsel = $("#w-server"); wsel.textContent = "";
+    wsel.appendChild(new Option("Any inference server", ""));
+    Object.keys(SERVERS).forEach(function(n){ wsel.appendChild(new Option(n, n)); });
     [$("#fuse"), $("#w-use")].forEach(function(sel){
       sel.textContent = "";
       sel.appendChild(new Option(sel.id === "w-use" ? "What do I need?…" : "Any use case", ""));
@@ -585,9 +618,12 @@
     var res = $("#w-results"); res.textContent = "";
     if(!cat || !tier){ res.textContent = "Pick your hardware + memory first."; return; }
     var needUse = !!use;
+    var server = $("#w-server").value;
     var picks = state.models.filter(function(m){
       if(needUse && (m.best_for || []).indexOf(use) === -1) return false;
       if($("#w-commercial").checked && m.commercial_ok === false) return false;
+      if(server && (m.servers || []).indexOf(server) === -1) return false;
+      if(server && SERVERS[server] && !SERVERS[server].backends[cat]) return false;
       return fitsFor(m, cat, tier);
     });
     picks.sort(function(a,b){ return b.trending_score - a.trending_score; });

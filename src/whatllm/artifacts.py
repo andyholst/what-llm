@@ -19,7 +19,7 @@ SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "model.schema.js
 SUMMARY_FIELDS = [
     "id", "name", "author", "parameters_b", "architecture",
     "pipeline_tag", "trending_score", "downloads", "est_vram_gb",
-    "model_type", "commercial_ok", "license", "best_for",
+    "model_type", "commercial_ok", "license", "best_for", "servers",
 ]
 
 

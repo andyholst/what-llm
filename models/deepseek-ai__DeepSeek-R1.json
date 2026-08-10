@@ -164,5 +164,11 @@
   ],
   "knowledge_cutoff": "2024-11",
   "benchmarks": [],
+  "servers": [
+    "llama.cpp",
+    "Ollama",
+    "LM Studio",
+    "koboldcpp"
+  ],
   "last_updated": "2026-08-10"
 }
